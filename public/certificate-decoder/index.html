@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Decode a PEM or Base64 X.509 certificate, chain or CSR: domains, issuer, expiry, key size, fingerprints and chain order. Private and local in your browser." />
+    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="application-name" content="decoder.in" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://decoder.in/certificate-decoder/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="decoder.in" />
+    <meta property="og:title" content="SSL certificate decoder — PEM, chains and CSRs — decoder.in" />
+    <meta property="og:description" content="Decode a PEM or Base64 X.509 certificate, chain or CSR: domains, issuer, expiry, key size, fingerprints and chain order. Private and local in your browser." />
+    <meta property="og:url" content="https://decoder.in/certificate-decoder/" />
+    <meta property="og:image" content="https://decoder.in/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>SSL certificate decoder — PEM, chains and CSRs — decoder.in</title>
+    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SSL certificate decoder — PEM, chains and CSRs","url":"https://decoder.in/certificate-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I paste my private key?","acceptedAnswer":{"@type":"Answer","text":"Please don't. Decoder recognises private keys and refuses to read them, but a private key pasted anywhere should be treated as exposed and replaced."}},{"@type":"Question","name":"What is the SPKI pin?","acceptedAnswer":{"@type":"Answer","text":"The SHA-256 of the public key, Base64-encoded. It identifies the key regardless of which certificate carries it, which is useful for certificate pinning and for matching a certificate to a key."}},{"@type":"Question","name":"Does it check revocation?","acceptedAnswer":{"@type":"Answer","text":"No. Revocation needs a network request to the CA's OCSP or CRL servers, and this page makes none. The OCSP and CRL addresses are listed so you can check them yourself."}}]}]}</script>
+  </head>
+  <body data-tool="certificate">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="decoder.in home">
+        <span class="wordmark-mark" aria-hidden="true">d/</span>
+        <span>decoder.in</span>
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Primary navigation">
+          <a href="/#tools">Tools</a>
+          <a href="/docs/">Docs</a>
+          <a href="/privacy/">Privacy</a>
+        </nav>
+        <div class="privacy-pill"><span></span> Local only</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
+        <h1>Decode SSL<br /><em>certificates.</em></h1>
+        <p class="intro">Paste a certificate, a full chain, a certificate signing request or a public key. See which domains it covers, who issued it, when it expires, and what a browser will object to.</p>
+      </section>
+
+      <div class="capability-strip" aria-label="Supported inspections">
+        <span>Domains &amp; expiry</span>
+        <span>Chains &amp; order</span>
+        <span>CSRs &amp; public keys</span>
+        <span>Fingerprints &amp; pins</span>
+      </div>
+
+      <section class="workspace" aria-label="Decoder workspace">
+        <div class="input-panel">
+          <div class="panel-heading">
+            <label for="payload">Input</label>
+            <div class="input-actions">
+              <button class="text-button" id="exampleButton" type="button">Try example</button>
+              <button class="text-button" id="clearButton" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="payload"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Paste -----BEGIN CERTIFICATE----- … or a whole chain…"
+          ></textarea>
+          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
+        </div>
+
+        <div class="result-panel" id="resultPanel" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Waiting for a signal</h2>
+            <p>Decoder will inspect the structure, not guess at its meaning.</p>
+          </div>
+
+          <div class="results" id="results" hidden>
+            <div class="result-topline">
+              <div>
+                <p class="result-label">Detected as</p>
+                <h2 id="detectedType">Unknown</h2>
+              </div>
+              <button class="copy-button" id="copyButton" type="button">Copy output</button>
+            </div>
+
+            <div class="confidence-row">
+              <span id="confidenceText">High confidence</span>
+              <div class="confidence-track"><span id="confidenceBar"></span></div>
+            </div>
+
+            <div id="notices"></div>
+            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
+              <label for="verifyKey">Verify signature</label>
+              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
+              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
+            </section>
+            <div class="layers" id="layers"></div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tool-links" id="tools" aria-label="Decoder tools">
+        <h2>Tools</h2>
+        <div><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/certificate-decoder/" aria-current="page">Certificate decoder</a><a href="/http-security-headers/">Security headers check</a><a href="/saml-decoder/">SAML decoder</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a></div>
+      </nav>
+
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>What Decoder checks</h2><p><strong>Domains</strong> come from the Subject Alternative Names. Browsers ignore the Common Name, so a certificate without SANs fails everywhere.</p><p><strong>Status</strong> compares the validity dates with your clock: valid with days remaining, expired, or not yet valid.</p><p><strong>Chain order</strong>: when you paste several certificates, each must be issued by the next one. Servers that send them in the wrong order break some clients.</p><p><strong>Warnings</strong> cover SHA-1 or MD5 signatures, RSA keys under 2048 bits, self-signed site certificates, and lifetimes over the 398 days browsers allow for public certificates.</p></section>
+        <section class="content-section"><h2>Getting a certificate to paste</h2><p>From a server: <code>openssl s_client -connect example.com:443 -showcerts &lt;/dev/null</code> prints the chain. From a file: open the <code>.pem</code> or <code>.crt</code> in a text editor. Windows <code>.cer</code> files exported as Base64 paste directly.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Can I paste my private key?</h3><p>Please don't. Decoder recognises private keys and refuses to read them, but a private key pasted anywhere should be treated as exposed and replaced.</p><h3>What is the SPKI pin?</h3><p>The SHA-256 of the public key, Base64-encoded. It identifies the key regardless of which certificate carries it, which is useful for certificate pinning and for matching a certificate to a key.</p><h3>Does it check revocation?</h3><p>No. Revocation needs a network request to the CA's OCSP or CRL servers, and this page makes none. The OCSP and CRL addresses are listed so you can check them yourself.</p></section>
+      </article>
+    </main>
+
+    <footer>
+      <span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <nav aria-label="Footer navigation">
+        <a href="/docs/">Documentation</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
+        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
+      </nav>
+    </footer>
+
+    <script src="/tools.js?v=20260926-1"></script>
+    <script src="/decoder.js?v=20260926-1"></script>
+    <script src="/examples.js?v=20260926-1"></script>
+    <script src="/app.js?v=20260926-1"></script>
+  </body>
+</html>

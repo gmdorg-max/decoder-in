@@ -1,6 +1,5 @@
-Contact: mailto:security@decoder.in
-Contact: mailto:feedback@decoder.in
-Expires: 2027-08-07T00:00:00.000Z
-Preferred-Languages: en
+Contact: mailto:hello@swiss.software
+Expires: 2027-09-26T00:00:00.000Z
+Preferred-Languages: en, fr
 Canonical: https://decoder.in/.well-known/security.txt
-Policy: https://decoder.in/privacy
+Policy: https://decoder.in/privacy/

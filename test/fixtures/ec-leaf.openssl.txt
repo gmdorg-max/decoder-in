@@ -1,0 +1,6 @@
+sha256 Fingerprint=EE:A4:36:DA:86:50:FD:5D:8D:DD:68:FF:2D:C6:54:0F:49:CA:23:DB:23:89:44:82:21:36:0D:F1:83:CA:E9:DC
+serial=09EAFD527A12BFC201E5F9E2D7EC1550D192DBBE
+notBefore=Sep 25 23:23:45 2026 GMT
+notAfter=Nov 24 23:23:45 2026 GMT
+subject=CN=api.example.test
+issuer=O=Decoder Test, CN=Decoder Test Root

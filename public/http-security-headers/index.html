@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Paste HTTP response headers and get a grade with specific fixes for CSP, HSTS, framing, referrer policy, cookies, CORS and version leaks. Nothing is sent anywhere." />
+    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="application-name" content="decoder.in" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://decoder.in/http-security-headers/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="decoder.in" />
+    <meta property="og:title" content="HTTP security headers checker — grade CSP, HSTS and cookies — decoder.in" />
+    <meta property="og:description" content="Paste HTTP response headers and get a grade with specific fixes for CSP, HSTS, framing, referrer policy, cookies, CORS and version leaks. Nothing is sent anywhere." />
+    <meta property="og:url" content="https://decoder.in/http-security-headers/" />
+    <meta property="og:image" content="https://decoder.in/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>HTTP security headers checker — grade CSP, HSTS and cookies — decoder.in</title>
+    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"HTTP security headers checker — grade CSP, HSTS and cookies","url":"https://decoder.in/http-security-headers/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just enter a URL?","acceptedAnswer":{"@type":"Answer","text":"Fetching a URL would mean our server contacting the site on your behalf, which decoder.in never does. Pasting headers also works for staging servers, intranets and local development."}},{"@type":"Question","name":"Is X-XSS-Protection still needed?","acceptedAnswer":{"@type":"Answer","text":"No. Browsers removed the XSS auditor it controlled. Set it to 0 or drop it and rely on a Content-Security-Policy."}},{"@type":"Question","name":"Which CSP should I start with?","acceptedAnswer":{"@type":"Answer","text":"For a site that serves its own scripts and styles: default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'. Then add the origins your pages really need."}}]}]}</script>
+  </head>
+  <body data-tool="headers">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="decoder.in home">
+        <span class="wordmark-mark" aria-hidden="true">d/</span>
+        <span>decoder.in</span>
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Primary navigation">
+          <a href="/#tools">Tools</a>
+          <a href="/docs/">Docs</a>
+          <a href="/privacy/">Privacy</a>
+        </nav>
+        <div class="privacy-pill"><span></span> Local only</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
+        <h1>Check security<br /><em>headers.</em></h1>
+        <p class="intro">Paste the response headers of any page and get a grade, with a plain explanation of each problem and what to change. Decoder never contacts the site.</p>
+      </section>
+
+      <div class="capability-strip" aria-label="Supported inspections">
+        <span>CSP &amp; HSTS</span>
+        <span>Framing &amp; referrer</span>
+        <span>Cookie flags</span>
+        <span>Version leaks</span>
+      </div>
+
+      <section class="workspace" aria-label="Decoder workspace">
+        <div class="input-panel">
+          <div class="panel-heading">
+            <label for="payload">Input</label>
+            <div class="input-actions">
+              <button class="text-button" id="exampleButton" type="button">Try example</button>
+              <button class="text-button" id="clearButton" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="payload"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Paste the output of curl -I https://example.com…"
+          ></textarea>
+          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
+        </div>
+
+        <div class="result-panel" id="resultPanel" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Waiting for a signal</h2>
+            <p>Decoder will inspect the structure, not guess at its meaning.</p>
+          </div>
+
+          <div class="results" id="results" hidden>
+            <div class="result-topline">
+              <div>
+                <p class="result-label">Detected as</p>
+                <h2 id="detectedType">Unknown</h2>
+              </div>
+              <button class="copy-button" id="copyButton" type="button">Copy output</button>
+            </div>
+
+            <div class="confidence-row">
+              <span id="confidenceText">High confidence</span>
+              <div class="confidence-track"><span id="confidenceBar"></span></div>
+            </div>
+
+            <div id="notices"></div>
+            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
+              <label for="verifyKey">Verify signature</label>
+              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
+              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
+            </section>
+            <div class="layers" id="layers"></div>
+          </div>
+        </div>
+      </section>
+
+      <p class="tool-hint">Get the headers with <code>curl -sI https://example.com</code>, or from your browser: DevTools → Network → select the page → Response Headers → copy.</p>
+
+      <nav class="tool-links" id="tools" aria-label="Decoder tools">
+        <h2>Tools</h2>
+        <div><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/certificate-decoder/">Certificate decoder</a><a href="/http-security-headers/" aria-current="page">Security headers check</a><a href="/saml-decoder/">SAML decoder</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a></div>
+      </nav>
+
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>How the grade works</h2><p>Each missing or weak protection costs points: a failure 20, a warning 8. Suggestions cost nothing. 90 and above is an A; below 40 is an F.</p><p><strong>Failures</strong>: no HSTS, no Content-Security-Policy, no <code>nosniff</code>, no framing protection, a referrer policy that leaks full URLs, cookies browsers will reject.</p><p><strong>Warnings</strong>: a CSP that still allows inline scripts or <code>eval</code>, short HSTS lifetimes, cookies without <code>Secure</code>, and <code>Server</code> or <code>X-Powered-By</code> headers that reveal software versions.</p></section>
+        <section class="content-section"><h2>Redirect chains</h2><p>When you paste the output of <code>curl -IL</code>, which contains every hop of a redirect, Decoder grades the final response: the one that serves the page.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Why not just enter a URL?</h3><p>Fetching a URL would mean our server contacting the site on your behalf, which decoder.in never does. Pasting headers also works for staging servers, intranets and local development.</p><h3>Is X-XSS-Protection still needed?</h3><p>No. Browsers removed the XSS auditor it controlled. Set it to 0 or drop it and rely on a Content-Security-Policy.</p><h3>Which CSP should I start with?</h3><p>For a site that serves its own scripts and styles: default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'. Then add the origins your pages really need.</p></section>
+      </article>
+    </main>
+
+    <footer>
+      <span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <nav aria-label="Footer navigation">
+        <a href="/docs/">Documentation</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
+        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
+      </nav>
+    </footer>
+
+    <script src="/tools.js?v=20260926-1"></script>
+    <script src="/decoder.js?v=20260926-1"></script>
+    <script src="/examples.js?v=20260926-1"></script>
+    <script src="/app.js?v=20260926-1"></script>
+  </body>
+</html>

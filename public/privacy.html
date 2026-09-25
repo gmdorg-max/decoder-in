@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="How decoder.in protects technical payloads and handles data." />
     <meta name="theme-color" content="#f4f1e8" />
-    <link rel="canonical" href="https://decoder.in/privacy" />
+    <link rel="canonical" href="https://decoder.in/privacy/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:title" content="Privacy — decoder.in" />
     <meta property="og:description" content="Your pasted payload stays in your browser. Learn what the site processes and what Cloudflare receives." />
     <meta property="og:image" content="https://decoder.in/og-card.png" />
     <title>Privacy — decoder.in</title>
-    <link rel="stylesheet" href="/styles.css?v=20260807-6" />
+    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
   </head>
   <body>
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="decoder.in home"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a>
       <div class="header-actions">
-        <nav aria-label="Primary navigation"><a href="/">Decoder</a><a href="/docs">Docs</a></nav>
+        <nav aria-label="Primary navigation"><a href="/#tools">Tools</a><a href="/">Decoder</a><a href="/docs/">Docs</a></nav>
         <div class="privacy-pill"><span></span> Local only</div>
       </div>
     </header>
@@ -33,6 +33,7 @@
             <li>Pasted and typed input is not uploaded to decoder.in.</li>
             <li>Decoded output is not sent to a server.</li>
             <li>No payload history is saved in cookies, local storage, or a database.</li>
+            <li>Keys and secrets pasted to verify a JWT signature are used by your browser's Web Crypto API and are never sent anywhere.</li>
             <li>Clipboard access occurs only when you press a copy button.</li>
           </ul>
           <p>The site’s Content Security Policy blocks browser connections to APIs and analytics endpoints.</p>
@@ -40,26 +41,26 @@
 
         <section class="content-section">
           <h2>Hosting metadata</h2>
-          <p>The static site is delivered by Cloudflare. Like other web hosts, Cloudflare may process ordinary request metadata needed to deliver and protect the site, such as IP address, requested path, user agent, timestamps, and security signals. Your decoder input is not part of those requests.</p>
+          <p>The static site is served from a swiss.software server and delivered through Cloudflare. Like other web hosts, Cloudflare may process ordinary request metadata needed to deliver and protect the site, such as IP address, requested path, user agent, timestamps, and security signals. Your decoder input is not part of those requests.</p>
         </section>
 
         <section class="content-section">
           <h2>No client-side surveillance</h2>
-          <p>Decoder does not include advertising scripts, session replay, behavioral analytics, tracking pixels, or third-party fonts. Aggregate request counts may be visible in the hosting dashboard without access to the text you decode.</p>
+          <p>Decoder does not include advertising scripts, session replay, behavioral analytics, tracking pixels, or third-party fonts. Aggregate request counts may be visible in the hosting logs without access to the text you decode.</p>
         </section>
 
         <section class="content-section">
           <h2>Feedback</h2>
           <p>The feedback link opens your email application. It never inserts your decoder input automatically. Do not include production credentials, private tokens, or personal data in a feedback message.</p>
-          <div class="page-actions"><a class="page-button" href="mailto:feedback@decoder.in?subject=decoder.in%20privacy">Contact</a><a class="page-button secondary" href="/">Return to Decoder</a></div>
+          <div class="page-actions"><a class="page-button" href="mailto:hello@swiss.software?subject=decoder.in%20privacy">Contact</a><a class="page-button secondary" href="/">Return to Decoder</a></div>
         </section>
 
         <section class="content-section">
           <h2>Effective date</h2>
-          <p>August 7, 2026. This page will be updated if the product begins storing data or using additional services.</p>
+          <p>September 26, 2026. This page will be updated if the product begins storing data or using additional services.</p>
         </section>
       </article>
     </main>
-    <footer><span>decoder.in · beta 0.2.2</span><nav><a href="/">Decoder</a><a href="/docs">Documentation</a></nav></footer>
+    <footer><span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span><nav><a href="/">Decoder</a><a href="/docs/">Documentation</a><a href="https://github.com/gmdorg-max/decoder-in">Source</a></nav></footer>
   </body>
 </html>

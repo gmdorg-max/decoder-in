@@ -122,3 +122,28 @@ footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
   .principles article + article { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
   footer { flex-direction: column; }
 }
+
+/* 0.3: signature verification, tool links, per-tool guides */
+.verify-panel { margin: 0 22px 14px; border: 1px solid var(--ink); background: var(--panel); }
+.verify-panel label { display: block; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 700 11px/1 ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.verify-panel textarea { min-height: 96px; padding: 12px 14px; font-size: 12px; }
+.verify-result { margin: 0; padding: 11px 14px; border-top: 1px solid var(--line); font: 12px/1.5 ui-monospace, monospace; color: var(--muted); }
+.verify-result[data-state="ok"] { background: #e8f7d8; color: #1f5f16; }
+.verify-result[data-state="bad"] { background: #fff1e9; color: #8a2a12; }
+.tool-hint { margin: 26px 0 0; max-width: 820px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.tool-hint code { padding: 2px 5px; background: #e7e3d8; color: var(--ink); font: 12px/1.5 ui-monospace, monospace; }
+.tool-links { margin: 70px 0 0; padding-top: 26px; border-top: 1px solid var(--line); }
+.tool-links h2 { margin: 0 0 16px; font: 700 11px/1 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.tool-links div { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+.tool-links a { padding: 16px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 700; font-size: 14px; text-decoration: none; }
+.tool-links a:nth-child(3n) { border-right: 0; }
+.tool-links a:nth-last-child(-n+3) { border-bottom: 0; }
+.tool-links a:hover, .tool-links a[aria-current="page"] { background: var(--acid); }
+.tool-guide { padding-top: 40px; }
+footer span a { color: inherit; }
+
+@media (max-width: 760px) {
+  .tool-links div { grid-template-columns: 1fr; }
+  .tool-links a { border-right: 0; border-bottom: 1px solid var(--line) !important; }
+  .tool-links a:last-child { border-bottom: 0 !important; }
+}
