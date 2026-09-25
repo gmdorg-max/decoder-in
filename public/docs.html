@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Supported formats, examples, and security notes for decoder.in." />
+    <meta name="theme-color" content="#f4f1e8" />
+    <link rel="canonical" href="https://decoder.in/docs" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="decoder.in documentation" />
+    <meta property="og:description" content="Examples and supported formats for the private browser-only technical payload inspector." />
+    <meta property="og:image" content="https://decoder.in/og-card.png" />
+    <title>Documentation — decoder.in</title>
+    <link rel="stylesheet" href="/styles.css?v=20260807-6" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="decoder.in home"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a>
+      <div class="header-actions">
+        <nav aria-label="Primary navigation"><a href="/">Decoder</a><a href="/privacy">Privacy</a></nav>
+        <div class="privacy-pill"><span></span> Local only</div>
+      </div>
+    </header>
+    <main>
+      <article class="content-page">
+        <p class="eyebrow">Documentation</p>
+        <h1>One input.<br /><em>Every layer.</em></h1>
+        <p class="content-lead">Paste a technical payload into the home page. Decoder chooses the relevant inspection path automatically and shows every transformation it applies.</p>
+
+        <section class="content-section">
+          <h2>JWT intelligence</h2>
+          <p>JWT headers and claims are decoded locally. Time claims such as <code>iat</code>, <code>nbf</code>, and <code>exp</code> are converted to readable dates and evaluated against the current time.</p>
+          <pre>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJleHAiOjE3MDQwNjcyMDB9.signature</pre>
+          <p class="callout"><strong>Important:</strong> decoding is not verification. Unless the signature is checked against a trusted key, the claims may have been created or modified by anyone.</p>
+        </section>
+
+        <section class="content-section">
+          <h2>HTTP and cURL</h2>
+          <p>Decoder extracts methods, URLs, query parameters, headers, cookies, JSON bodies, and Bearer JWTs from cURL commands and raw HTTP requests.</p>
+          <pre>curl 'https://api.example.com/users?active=true' \
+  -H 'Accept: application/json' \
+  -H 'Cookie: theme=dark' \
+  -d '{"name":"Ada"}'</pre>
+        </section>
+
+        <section class="content-section">
+          <h2>JSON diagnostics</h2>
+          <p>Valid JSON is formatted. Invalid object- or array-shaped input receives a likely cause, line, column, nearby context, and—when the fix is unambiguous—a repair preview.</p>
+          <pre>{"ok":true,"items":[1,2,],}</pre>
+        </section>
+
+        <section class="content-section">
+          <h2>Encodings and identifiers</h2>
+          <ul>
+            <li>Base64 and Base64URL text, including Unicode</li>
+            <li>Percent-encoded URLs and nested encoding layers</li>
+            <li>Unix timestamps in seconds or milliseconds</li>
+            <li>Plain URLs, fragments, and repeated query parameters</li>
+            <li>Malformed JWT- and JSON-shaped input</li>
+          </ul>
+        </section>
+
+        <section class="content-section">
+          <h2>What Decoder never does</h2>
+          <p>It does not upload your input, save local history, execute pasted commands, call URLs, verify JWT signatures, or claim that decoded data is trustworthy.</p>
+          <div class="page-actions"><a class="page-button" href="/">Open Decoder</a><a class="page-button secondary" href="mailto:feedback@decoder.in?subject=decoder.in%20feedback">Send feedback</a></div>
+        </section>
+      </article>
+    </main>
+    <footer><span>decoder.in · beta 0.2.2</span><nav><a href="/">Decoder</a><a href="/privacy">Privacy</a></nav></footer>
+  </body>
+</html>

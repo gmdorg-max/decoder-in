@@ -1,0 +1,17 @@
+{
+  "name": "decoder.in",
+  "short_name": "decoder",
+  "description": "A private, browser-only technical payload inspector.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f1e8",
+  "theme_color": "#f4f1e8",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

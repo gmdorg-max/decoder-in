@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f4f1e8"/>
+  <rect x="56" y="52" width="1088" height="526" fill="#fbf9f3" stroke="#171915" stroke-width="3"/>
+  <rect x="66" y="62" width="1088" height="526" fill="none" stroke="#171915" stroke-width="8"/>
+  <circle cx="116" cy="112" r="31" fill="#171915"/>
+  <text x="95" y="123" fill="#d9ff43" font-family="monospace" font-size="23" font-weight="700">d/</text>
+  <text x="164" y="122" fill="#171915" font-family="Arial, sans-serif" font-size="30" font-weight="700">decoder.in</text>
+  <circle cx="970" cy="110" r="8" fill="#37a84a"/>
+  <text x="988" y="117" fill="#67695f" font-family="monospace" font-size="17">LOCAL ONLY</text>
+  <text x="105" y="302" fill="#171915" font-family="Arial, sans-serif" font-size="88" font-weight="700" letter-spacing="-5">Make encoded data</text>
+  <text x="105" y="397" fill="#ff6542" font-family="Georgia, serif" font-size="100" font-style="italic">readable.</text>
+  <text x="108" y="478" fill="#67695f" font-family="Arial, sans-serif" font-size="25">JWT · HTTP &amp; cURL · JSON · Base64 · URLs · timestamps</text>
+  <rect x="105" y="515" width="365" height="6" fill="#2f5dff"/>
+</svg>

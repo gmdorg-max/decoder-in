@@ -1,0 +1,6 @@
+Contact: mailto:security@decoder.in
+Contact: mailto:feedback@decoder.in
+Expires: 2027-08-07T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://decoder.in/.well-known/security.txt
+Policy: https://decoder.in/privacy
