@@ -398,7 +398,7 @@ ${sectionsHtml(page)}
         <a href="/docs/">Documentation</a>
         <a href="/privacy/">Privacy</a>
         <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
-        <a href="mailto:feedback@decoder.in?subject=decoder.in%20feedback">Send feedback</a>
+        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
       </nav>
     </footer>
 

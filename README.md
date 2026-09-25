@@ -49,7 +49,7 @@ node build/serve.js   # preview on http://127.0.0.1:8765 with the production CSP
 
 ## Security
 
-Found a problem? Write to security@decoder.in (see `/.well-known/security.txt`).
+Found a problem? Write to hello@swiss.software with "decoder.in security" in the subject (see `/.well-known/security.txt`).
 
 ## Licence
 
