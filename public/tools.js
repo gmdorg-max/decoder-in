@@ -588,8 +588,9 @@
     if (cert.selfSigned && (!cert.ca || selfSignedSite(cert))) notices.push(`${who} is self-signed: browsers will not trust it unless it is installed manually.`);
     if (!cert.ca && cert.notBefore && cert.notAfter) {
       const limit = maxPublicLifetimeDays(cert.notBefore);
-      const days = Math.round((cert.notAfter - cert.notBefore) / 86400000);
-      if (days > limit) {
+      const duration = cert.notAfter - cert.notBefore;
+      const days = Math.ceil(duration / 86400000);
+      if (duration > limit * 86400000) {
         notices.push(`${who} is valid for ${days} days. Publicly trusted TLS certificates issued on ${cert.notBefore.toISOString().slice(0, 10)} may last at most ${limit} days (CA/Browser Forum), so this one can only come from a private CA.`);
       }
     }

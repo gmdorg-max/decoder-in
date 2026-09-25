@@ -363,6 +363,7 @@ async function test(name, fn) {
   await test("certificate lifetime limit follows the issue date (SC-081)", () => {
     const long = analyze(fixture("leaf-300-days.pem"), Date.parse("2026-10-01T00:00:00Z"));
     assert.ok(long.notices.some((n) => /valid for 300 days.*at most 200 days/.test(n)), JSON.stringify(long.notices));
+    assert.match(long.notices.find((n) => /at most/.test(n)), /valid for 300 days/);
     const short = analyze(fixture("ec-leaf.pem"), Date.parse("2026-10-01T00:00:00Z"));
     assert.ok(!short.notices.some((n) => /at most/.test(n)));
   });
