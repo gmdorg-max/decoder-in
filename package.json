@@ -1,0 +1,15 @@
+{
+  "name": "decoder-in",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Private, browser-only inspector for JWTs, certificates, SAML, email and security headers, IDs and encodings.",
+  "license": "MIT",
+  "author": "swiss.software",
+  "homepage": "https://decoder.in",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node build/pages.js --check && node test/decoder.test.js && node test/tools.test.js",
+    "build": "node build/pages.js",
+    "preview": "node build/serve.js"
+  }
+}

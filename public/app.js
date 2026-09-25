@@ -7,14 +7,15 @@ const confidenceBar = document.querySelector("#confidenceBar");
 const layers = document.querySelector("#layers");
 const notices = document.querySelector("#notices");
 const copyButton = document.querySelector("#copyButton");
+const verifyPanel = document.querySelector("#verifyPanel");
+const verifyKey = document.querySelector("#verifyKey");
+const verifyResult = document.querySelector("#verifyResult");
+const tool = document.body.dataset.tool || "home";
+const examples = (globalThis.DecoderExamples && globalThis.DecoderExamples[tool]) || [];
 let latestOutput = "";
+let latestToken = null;
 let exampleIndex = 0;
-
-const examples = [
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkYSBMb3ZlbGFjZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNzA0MDY3MjAwfQ.signature-not-verified",
-  `curl 'https://api.example.com/users?active=true&role=admin' -H 'Accept: application/json' -H 'Cookie: session=demo; theme=dark' -d '{"name":"Ada"}'`,
-  '{"ok":true,"items":[1,2,],}',
-];
+let verifyRun = 0;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
@@ -28,12 +29,28 @@ function displayValue(layer) {
   return `<pre>${escapeHtml(value)}</pre>`;
 }
 
+function setVerify(state, message) {
+  verifyResult.textContent = message;
+  verifyResult.dataset.state = state;
+}
+
+async function verify() {
+  const run = ++verifyRun;
+  if (!latestToken) return;
+  if (!verifyKey.value.trim()) { setVerify("idle", "Paste a key to check the signature. It stays in this tab."); return; }
+  setVerify("busy", "Checking…");
+  const result = await DecoderTools.verifyJwt(latestToken, verifyKey.value);
+  if (run !== verifyRun) return;
+  setVerify(result.ok ? "ok" : "bad", result.message);
+}
+
 function render() {
   const value = payload.value.trim();
   if (!value) {
     emptyState.hidden = false;
     results.hidden = true;
     latestOutput = "";
+    latestToken = null;
     return;
   }
 
@@ -50,18 +67,33 @@ function render() {
       <div class="layer-heading"><span>${escapeHtml(layer.type)}</span><span>${escapeHtml(layer.detail)}</span></div>
       ${displayValue(layer)}
     </article>`).join("");
+
+  const token = analysis.jwt || null;
+  verifyPanel.hidden = !token;
+  if (token !== latestToken) {
+    latestToken = token;
+    if (token) verify();
+  }
 }
 
 payload.addEventListener("input", render);
+verifyKey.addEventListener("input", verify);
 document.querySelector("#clearButton").addEventListener("click", () => { payload.value = ""; render(); payload.focus(); });
-document.querySelector("#exampleButton").addEventListener("click", (event) => {
+const exampleButton = document.querySelector("#exampleButton");
+if (!examples.length) exampleButton.hidden = true;
+exampleButton.addEventListener("click", (event) => {
   payload.value = examples[exampleIndex];
   exampleIndex = (exampleIndex + 1) % examples.length;
-  event.currentTarget.textContent = "Next example";
+  if (examples.length > 1) event.currentTarget.textContent = "Next example";
   render();
 });
 copyButton.addEventListener("click", async () => {
-  await navigator.clipboard.writeText(latestOutput);
-  copyButton.textContent = "Copied";
-  window.setTimeout(() => { copyButton.textContent = "Copy output"; }, 1200);
+  try {
+    await navigator.clipboard.writeText(latestOutput);
+    copyButton.textContent = "Copied";
+  } catch {
+    // Clipboard access can be refused (permissions, embedded frames); the input stays untouched.
+    copyButton.textContent = "Copy blocked by the browser";
+  }
+  window.setTimeout(() => { copyButton.textContent = "Copy output"; }, 1600);
 });

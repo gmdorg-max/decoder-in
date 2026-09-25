@@ -1,0 +1,6 @@
+sha256 Fingerprint=30:EF:01:20:38:07:59:4C:FB:7E:4C:FB:26:EF:1A:60:71:8D:35:8E:7D:DF:6A:83:69:BE:97:7C:95:39:4F:1D
+serial=3DF17B7EE2E5B3957519E246AF28A69B5E75671E
+notBefore=Sep 25 23:23:45 2026 GMT
+notAfter=Dec 24 23:23:45 2026 GMT
+subject=C=CH, O=Example SA, CN=example.test
+issuer=C=CH, O=Example SA, CN=example.test

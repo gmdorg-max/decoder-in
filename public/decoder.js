@@ -5,6 +5,7 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
+  const Tools = typeof module === "object" && typeof require === "function" ? require("./tools.js") : globalThis.DecoderTools;
   const MAX_LAYERS = 6;
 
   function prettify(value) {
@@ -261,12 +262,17 @@
     return null;
   }
 
-  function analyze(input) {
+  function analyze(input, now = Date.now()) {
     const raw = String(input ?? "").trim();
     if (!raw) return { type: "Empty", confidence: 0, layers: [], notices: [], output: "" };
 
     const notices = [];
     const layers = [];
+    if (/-----BEGIN [A-Z0-9 ]+-----/.test(raw)) {
+      const pem = Tools.analyzePem(raw, now);
+      if (pem) return pem;
+    }
+
     const jwt = decodeJwt(raw);
     if (jwt) {
       const intelligence = analyzeJwtClaims(jwt);
@@ -275,7 +281,7 @@
       layers.push({ type: "JWT intelligence", detail: intelligence.summary.Status, value: intelligence.summary, claims: true });
       layers.push({ type: "Signature", detail: "Not verified", value: jwt.signature });
       notices.push(...intelligence.notices);
-      return { type: "JSON Web Token", confidence: 98, layers, notices, output: prettify(jwt.payload) };
+      return { type: "JSON Web Token", confidence: 98, layers, notices, output: prettify(jwt.payload), jwt: raw };
     }
 
     if (looksLikeJwt(raw)) {
@@ -284,8 +290,27 @@
       return { type: "Malformed JWT", confidence: 95, layers, notices, output: raw };
     }
 
+    if (/^https?:\/\/\S+[?&]SAML(Request|Response)=/i.test(raw)) {
+      const saml = Tools.analyzeSamlUrl(raw, now);
+      if (saml) return saml;
+    }
+
+    const email = Tools.analyzeEmail(raw);
+    if (email) return email;
+
+    const response = Tools.analyzeResponse(raw);
+    if (response) return response;
+
     const http = analyzeHttp(raw);
     if (http) return http;
+
+    if (raw.startsWith("<")) {
+      const xml = Tools.analyzeXml(raw, now);
+      if (xml) return xml;
+    }
+
+    const id = Tools.analyzeId(raw, now);
+    if (id) return id;
 
     const timestamp = timestampInfo(raw);
     if (timestamp) {
@@ -325,7 +350,26 @@
         try {
           const candidate = decodeBase64(current);
           if (candidate !== current && isMostlyReadable(candidate)) { decoded = candidate; type = "Base64"; }
-        } catch { /* not valid UTF-8 Base64 */ }
+        } catch {
+          // Binary Base64: a DER certificate, or gzip / zlib / deflate compressed text.
+          let bytes = null;
+          try { bytes = Tools.base64ToBytes(current); } catch { /* not Base64 at all */ }
+          if (bytes) {
+            const cert = Tools.certificateFromDer(bytes, now);
+            if (cert) return { ...cert, layers: [...layers, ...cert.layers], notices: [...notices, ...cert.notices] };
+            const inflated = Tools.decompress(bytes);
+            let text = null;
+            if (inflated) {
+              try { text = Tools.utf8(inflated.bytes, true); } catch { /* binary payload */ }
+            }
+            if (text && Tools.readable(text)) {
+              layers.push({ type: "Base64", detail: `Layer ${layers.length + 1}`, value: `${bytes.length} bytes of ${inflated.format} data` });
+              if (layers.length === 1) firstType = "Compressed data";
+              decoded = text;
+              type = `${inflated.format} decompressed`;
+            }
+          }
+        }
       }
 
       if (decoded === null) break;
@@ -338,6 +382,11 @@
         layers.push({ type: "JSON", detail: "Decoded payload", value: nestedJson, claims: typeof nestedJson === "object" && !Array.isArray(nestedJson) });
         current = prettify(nestedJson);
         break;
+      }
+
+      if (current.startsWith("<")) {
+        const xml = Tools.analyzeXml(current, now);
+        if (xml) return { ...xml, layers: [...layers, ...xml.layers], notices: [...notices, ...xml.notices] };
       }
 
       const nestedTimestamp = timestampInfo(current);

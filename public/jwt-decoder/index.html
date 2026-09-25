@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Decode a JSON Web Token and verify its HS256, RS256, PS256, ES256 or EdDSA signature with a secret, PEM key, certificate or JWKS. Runs entirely in your browser." />
+    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="application-name" content="decoder.in" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://decoder.in/jwt-decoder/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="decoder.in" />
+    <meta property="og:title" content="JWT decoder and signature verifier — decoder.in" />
+    <meta property="og:description" content="Decode a JSON Web Token and verify its HS256, RS256, PS256, ES256 or EdDSA signature with a secret, PEM key, certificate or JWKS. Runs entirely in your browser." />
+    <meta property="og:url" content="https://decoder.in/jwt-decoder/" />
+    <meta property="og:image" content="https://decoder.in/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>JWT decoder and signature verifier — decoder.in</title>
+    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JWT decoder and signature verifier","url":"https://decoder.in/jwt-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it safe to paste a production token here?","acceptedAnswer":{"@type":"Answer","text":"Decoding and verification run in your browser with the Web Crypto API. The page makes no network requests (its Content-Security-Policy forbids them), so the token and key never leave the tab. Treat tokens like passwords anyway and prefer expired or test tokens."}},{"@type":"Question","name":"My HS256 secret is Base64. Does that work?","acceptedAnswer":{"@type":"Answer","text":"Yes. If the text secret does not match, Decoder also tries the Base64-decoded bytes and tells you which one matched."}},{"@type":"Question","name":"Where do I get the public key?","acceptedAnswer":{"@type":"Answer","text":"Most identity providers publish a JWKS at a URL like /.well-known/jwks.json. Open it, copy the JSON, and paste it into the key box."}}]}]}</script>
+  </head>
+  <body data-tool="jwt">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="decoder.in home">
+        <span class="wordmark-mark" aria-hidden="true">d/</span>
+        <span>decoder.in</span>
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Primary navigation">
+          <a href="/#tools">Tools</a>
+          <a href="/docs/">Docs</a>
+          <a href="/privacy/">Privacy</a>
+        </nav>
+        <div class="privacy-pill"><span></span> Local only</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
+        <h1>Decode and verify<br /><em>JWTs.</em></h1>
+        <p class="intro">Paste a JSON Web Token to read its header and claims, see when it expires, and check the signature against a secret or public key. Nothing leaves this tab.</p>
+      </section>
+
+      <div class="capability-strip" aria-label="Supported inspections">
+        <span>Claims &amp; expiry</span>
+        <span>HS · RS · PS · ES · EdDSA</span>
+        <span>PEM, JWK &amp; JWKS</span>
+        <span>alg-confusion guard</span>
+      </div>
+
+      <section class="workspace" aria-label="Decoder workspace">
+        <div class="input-panel">
+          <div class="panel-heading">
+            <label for="payload">Input</label>
+            <div class="input-actions">
+              <button class="text-button" id="exampleButton" type="button">Try example</button>
+              <button class="text-button" id="clearButton" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="payload"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Paste a JWT (eyJ…) or an Authorization: Bearer header…"
+          ></textarea>
+          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
+        </div>
+
+        <div class="result-panel" id="resultPanel" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Waiting for a signal</h2>
+            <p>Decoder will inspect the structure, not guess at its meaning.</p>
+          </div>
+
+          <div class="results" id="results" hidden>
+            <div class="result-topline">
+              <div>
+                <p class="result-label">Detected as</p>
+                <h2 id="detectedType">Unknown</h2>
+              </div>
+              <button class="copy-button" id="copyButton" type="button">Copy output</button>
+            </div>
+
+            <div class="confidence-row">
+              <span id="confidenceText">High confidence</span>
+              <div class="confidence-track"><span id="confidenceBar"></span></div>
+            </div>
+
+            <div id="notices"></div>
+            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
+              <label for="verifyKey">Verify signature</label>
+              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
+              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
+            </section>
+            <div class="layers" id="layers"></div>
+          </div>
+        </div>
+      </section>
+
+      <p class="tool-hint">The example is signed with the secret <code>decoder-in-demo-secret</code>: paste it into the key box to see a valid signature.</p>
+
+      <nav class="tool-links" id="tools" aria-label="Decoder tools">
+        <h2>Tools</h2>
+        <div><a href="/jwt-decoder/" aria-current="page">JWT decoder &amp; verifier</a><a href="/certificate-decoder/">Certificate decoder</a><a href="/http-security-headers/">Security headers check</a><a href="/saml-decoder/">SAML decoder</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a></div>
+      </nav>
+
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>Reading the result</h2><p><strong>JWT header</strong> shows the algorithm (<code>alg</code>) and, when present, the key id (<code>kid</code>) that tells you which key signed it.</p><p><strong>JWT intelligence</strong> turns <code>iat</code>, <code>nbf</code> and <code>exp</code> into dates and says whether the token is active, expired or not yet valid.</p><p><strong>Verify signature</strong> appears under the result. Paste the shared secret for HS256/384/512, or the issuer's public key for RS, PS, ES and EdDSA tokens: a PEM public key, an X.509 certificate, a single JWK or a whole JWKS (the key is picked by <code>kid</code>).</p></section>
+        <section class="content-section"><h2>Why decoding is not verifying</h2><p>Anyone can create a token with any claims. Only a matching signature proves the issuer made it and nobody changed it since. Decoder refuses tokens with <code>alg: none</code>, refuses to use a public key as an HMAC secret (the classic algorithm-confusion attack), and never accepts a private key.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Is it safe to paste a production token here?</h3><p>Decoding and verification run in your browser with the Web Crypto API. The page makes no network requests (its Content-Security-Policy forbids them), so the token and key never leave the tab. Treat tokens like passwords anyway and prefer expired or test tokens.</p><h3>My HS256 secret is Base64. Does that work?</h3><p>Yes. If the text secret does not match, Decoder also tries the Base64-decoded bytes and tells you which one matched.</p><h3>Where do I get the public key?</h3><p>Most identity providers publish a JWKS at a URL like /.well-known/jwks.json. Open it, copy the JSON, and paste it into the key box.</p></section>
+      </article>
+    </main>
+
+    <footer>
+      <span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <nav aria-label="Footer navigation">
+        <a href="/docs/">Documentation</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
+        <a href="mailto:feedback@decoder.in?subject=decoder.in%20feedback">Send feedback</a>
+      </nav>
+    </footer>
+
+    <script src="/tools.js?v=20260926-1"></script>
+    <script src="/decoder.js?v=20260926-1"></script>
+    <script src="/examples.js?v=20260926-1"></script>
+    <script src="/app.js?v=20260926-1"></script>
+  </body>
+</html>
