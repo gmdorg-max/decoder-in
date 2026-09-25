@@ -20,9 +20,10 @@ Built by [swiss.software](https://swiss.software/). Free to use.
 ## Privacy by construction
 
 Everything runs in the browser. There are no dependencies, no build step for the
-runtime code, no analytics and no backend. Production serves the site with
-`connect-src 'none'`, so the page cannot send your input anywhere even if it
-wanted to. Signature checks use the browser's Web Crypto API.
+runtime code, no analytics and no backend. The code never sends what you paste
+anywhere, and production serves the site with a Content-Security-Policy that
+limits every request to decoder.in itself (`connect-src 'none'`, no third-party
+scripts, images or frames). Signature checks use the browser's Web Crypto API.
 
 ## Layout
 

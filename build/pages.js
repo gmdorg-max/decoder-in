@@ -437,19 +437,23 @@ function outputs() {
   return files;
 }
 
-const check = process.argv.includes("--check");
-let stale = 0;
-for (const [name, contents] of Object.entries(outputs())) {
-  const target = path.join(PUBLIC, name);
-  const current = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : null;
-  if (current === contents) continue;
-  if (check) { console.log(`stale: public/${name}`); stale += 1; continue; }
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, contents);
-  console.log(`wrote public/${name}`);
+function main() {
+  const check = process.argv.includes("--check");
+  let stale = 0;
+  for (const [name, contents] of Object.entries(outputs())) {
+    const target = path.join(PUBLIC, name);
+    const current = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : null;
+    if (current === contents) continue;
+    if (check) { console.log(`stale: public/${name}`); stale += 1; continue; }
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, contents);
+    console.log(`wrote public/${name}`);
+  }
+  if (check) {
+    if (stale) { console.log("run: node build/pages.js"); process.exit(1); }
+    console.log("pages up to date");
+  }
 }
-if (check) {
-  if (stale) { console.log("run: node build/pages.js"); process.exit(1); }
-  console.log("pages up to date");
-}
+
+if (require.main === module) main();
 module.exports = { PAGES, TOOLS, EXAMPLES, DEMO_SECRET };

@@ -564,6 +564,16 @@
     ];
   }
 
+  // CA/Browser Forum Baseline Requirements, ballot SC-081: the maximum lifetime of a
+  // publicly trusted TLS certificate depends on when it was issued.
+  function maxPublicLifetimeDays(notBefore) {
+    const issued = notBefore.getTime();
+    if (issued >= Date.UTC(2029, 2, 15)) return 47;
+    if (issued >= Date.UTC(2027, 2, 15)) return 100;
+    if (issued >= Date.UTC(2026, 2, 15)) return 200;
+    return 398;
+  }
+
   // `openssl req -x509` marks its self-signed output as a CA by default; one that
   // names hostnames is still a website certificate, not a trust anchor.
   const selfSignedSite = (cert) => cert.selfSigned && cert.san.some((name) => !/^(IP|email|URI):/.test(name));
@@ -576,8 +586,12 @@
     if (/sha1|md5/i.test(cert.signature)) notices.push(`${who} is signed with ${cert.signature}, which browsers no longer accept.`);
     if (cert.key.algorithm === "RSA" && cert.key.size && cert.key.size < 2048) notices.push(`${who} uses a ${cert.key.size}-bit RSA key; 2048 bits is the minimum accepted today.`);
     if (cert.selfSigned && (!cert.ca || selfSignedSite(cert))) notices.push(`${who} is self-signed: browsers will not trust it unless it is installed manually.`);
-    if (!cert.ca && cert.notBefore && cert.notAfter && cert.notAfter - cert.notBefore > 398 * 86400000) {
-      notices.push(`${who} is valid for more than 398 days. Publicly trusted TLS certificates are limited to 398 days, so browsers reject it unless it comes from a private CA.`);
+    if (!cert.ca && cert.notBefore && cert.notAfter) {
+      const limit = maxPublicLifetimeDays(cert.notBefore);
+      const days = Math.round((cert.notAfter - cert.notBefore) / 86400000);
+      if (days > limit) {
+        notices.push(`${who} is valid for ${days} days. Publicly trusted TLS certificates issued on ${cert.notBefore.toISOString().slice(0, 10)} may last at most ${limit} days (CA/Browser Forum), so this one can only come from a private CA.`);
+      }
     }
     if (!cert.ca && !cert.san.length) notices.push(`${who} has no subject alternative names; modern browsers ignore the CN and will reject it for any hostname.`);
     return notices;
@@ -979,7 +993,15 @@
   }
 
   const addrDomain = (value) => ((value || "").match(/@([A-Za-z0-9.-]+)/) || [])[1]?.toLowerCase() || null;
-  const orgDomain = (domain) => (domain ? domain.split(".").slice(-2).join(".") : null);
+  // Registrable domain without a Public Suffix List: keep one more label under
+  // two-letter country codes with a generic second level (co.uk, com.au, gov.br, ac.jp).
+  const orgDomain = (domain) => {
+    if (!domain) return null;
+    const labels = domain.split(".");
+    const keep = labels.length > 2 && labels[labels.length - 1].length === 2
+      && /^(co|com|net|org|gov|edu|ac|or|ne|go|ltd|plc)$/.test(labels[labels.length - 2]) ? 3 : 2;
+    return labels.slice(-keep).join(".");
+  };
 
   function privateIp(ip) {
     return /^(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|::1$|f[cd][0-9a-f]{2}:|fe80:)/i.test(ip);
@@ -1153,7 +1175,9 @@
     else add("fail", "X-Content-Type-Options", "Missing nosniff: browsers may guess content types and execute uploads as scripts.");
 
     const xfo = (get("x-frame-options") || "").toUpperCase();
-    if (directives["frame-ancestors"]) add("pass", "Framing", `CSP frame-ancestors ${directives["frame-ancestors"].join(" ")}.`);
+    const ancestors = directives["frame-ancestors"];
+    if (ancestors && ancestors.some((s) => s === "*" || s === "https:" || s === "http:")) add("fail", "Framing", `CSP frame-ancestors ${ancestors.join(" ")} lets any site embed this page (clickjacking).`);
+    else if (ancestors) add("pass", "Framing", `CSP frame-ancestors ${ancestors.join(" ")}.`);
     else if (xfo === "DENY" || xfo === "SAMEORIGIN") add("pass", "Framing", `X-Frame-Options ${xfo}.`);
     else if (xfo.startsWith("ALLOW-FROM")) add("warn", "Framing", "X-Frame-Options ALLOW-FROM is ignored by modern browsers; use CSP frame-ancestors.");
     else add("fail", "Framing", "No X-Frame-Options or frame-ancestors: other sites can embed this page (clickjacking).");
@@ -1299,8 +1323,12 @@
       let usedKind = kind;
       if (!ok && kind === "shared secret" && /^[A-Za-z0-9+/_-]{16,}={0,2}$/.test(keyText.trim())) {
         // Many services hand out Base64-encoded secrets; try the decoded bytes as well.
-        const decodedKey = await subtle().importKey("raw", base64ToBytes(keyText.trim()), { name: "HMAC", hash: spec.hash }, false, ["verify"]);
-        if (await subtle().verify(params, decodedKey, signature, data)) { ok = true; usedKind = "Base64-decoded shared secret"; }
+        let decodedBytes = null;
+        try { decodedBytes = base64ToBytes(keyText.trim()); } catch { /* looked like Base64 but is not: keep the mismatch */ }
+        if (decodedBytes && decodedBytes.length) {
+          const decodedKey = await subtle().importKey("raw", decodedBytes, { name: "HMAC", hash: spec.hash }, false, ["verify"]);
+          if (await subtle().verify(params, decodedKey, signature, data)) { ok = true; usedKind = "Base64-decoded shared secret"; }
+        }
       }
       return ok
         ? { ok: true, alg, kind: usedKind, message: `Signature valid: ${alg} with the ${usedKind}.` }

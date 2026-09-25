@@ -20,8 +20,11 @@ const HEADERS = {
 };
 
 http.createServer((req, res) => {
-  let file = path.normalize(path.join(ROOT, decodeURIComponent(new URL(req.url, "http://x").pathname)));
-  if (!file.startsWith(ROOT)) { res.writeHead(403, HEADERS).end(); return; }
+  let pathname;
+  try { pathname = decodeURIComponent(new URL(req.url, "http://127.0.0.1").pathname); } catch { res.writeHead(400, HEADERS).end(); return; }
+  let file = path.resolve(ROOT, "." + pathname);
+  const inside = path.relative(ROOT, file);
+  if (inside.startsWith("..") || path.isAbsolute(inside)) { res.writeHead(403, HEADERS).end(); return; }
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, "index.html");
   if (!fs.existsSync(file)) { res.writeHead(404, { ...HEADERS, "Content-Type": TYPES[".html"] }).end(fs.readFileSync(path.join(ROOT, "404.html"))); return; }
   res.writeHead(200, { ...HEADERS, "Content-Type": TYPES[path.extname(file)] || "application/octet-stream" });

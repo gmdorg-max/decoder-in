@@ -39,7 +39,12 @@ async function verify() {
   if (!latestToken) return;
   if (!verifyKey.value.trim()) { setVerify("idle", "Paste a key to check the signature. It stays in this tab."); return; }
   setVerify("busy", "Checking…");
-  const result = await DecoderTools.verifyJwt(latestToken, verifyKey.value);
+  let result;
+  try {
+    result = await DecoderTools.verifyJwt(latestToken, verifyKey.value);
+  } catch (error) {
+    result = { ok: false, message: (error && error.message) || "The key could not be used." };
+  }
   if (run !== verifyRun) return;
   setVerify(result.ok ? "ok" : "bad", result.message);
 }
@@ -51,6 +56,7 @@ function render() {
     results.hidden = true;
     latestOutput = "";
     latestToken = null;
+    verifyRun += 1; // a verification still in flight must not report into the cleared panel
     return;
   }
 

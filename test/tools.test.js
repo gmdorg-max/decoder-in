@@ -359,6 +359,40 @@ async function test(name, fn) {
     assert.equal(analyze(token).jwt, token);
   });
 
+  // ------------------------------------------------- review fixes (PR #1)
+  await test("certificate lifetime limit follows the issue date (SC-081)", () => {
+    const long = analyze(fixture("leaf-300-days.pem"), Date.parse("2026-10-01T00:00:00Z"));
+    assert.ok(long.notices.some((n) => /valid for 300 days.*at most 200 days/.test(n)), JSON.stringify(long.notices));
+    const short = analyze(fixture("ec-leaf.pem"), Date.parse("2026-10-01T00:00:00Z"));
+    assert.ok(!short.notices.some((n) => /at most/.test(n)));
+  });
+
+  await test("Reply-To spoofing is caught under two-level country suffixes", () => {
+    const headers = "Received: from a.bank.co.uk by mx.test; Fri, 25 Sep 2026 14:00:00 +0000\nAuthentication-Results: mx.test; dmarc=pass header.from=bank.co.uk\nFrom: Bank <help@bank.co.uk>\nReply-To: pay@attacker.co.uk\nSubject: hi";
+    assert.ok(analyze(headers).notices.some((n) => /Replies go to attacker\.co\.uk/.test(n)));
+    const same = headers.replace("attacker.co.uk", "mail.bank.co.uk");
+    assert.ok(!analyze(same).notices.some((n) => /Replies go to/.test(n)));
+  });
+
+  await test("frame-ancestors * fails the framing check", () => {
+    const result = analyze("HTTP/2 200\ncontent-security-policy: default-src 'self'; frame-ancestors *");
+    assert.match(result.layers[1].value["✗ Framing"], /any site/);
+  });
+
+  await test("a wrong 17-character secret reports a mismatch, not a Base64 error", async () => {
+    const token = sign({ alg: "HS256" }, { sub: "1" }, (d) => crypto.createHmac("sha256", "right").update(d).digest());
+    const result = await Tools.verifyJwt(token, "abcdefghijklmnopq");
+    assert.equal(result.ok, false);
+    assert.match(result.message, /does NOT match/);
+  });
+
+  await test("requiring the page generator writes nothing", () => {
+    const before = fs.statSync(path.join(__dirname, "..", "public", "index.html")).mtimeMs;
+    const pages = require("../build/pages.js");
+    assert.ok(Array.isArray(pages.PAGES) && pages.PAGES.length === 7);
+    assert.equal(fs.statSync(path.join(__dirname, "..", "public", "index.html")).mtimeMs, before);
+  });
+
   // ------------------------------------------------------------------ report
   let failed = 0;
   for (const [status, name, error] of results) {
