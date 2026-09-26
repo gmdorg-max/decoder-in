@@ -54,6 +54,17 @@ async function test(name, fn) {
     assert.throws(() => Tools.inflateRaw(bomb), /exceeds 8 MB/);
   });
 
+  await test("padded gzip cannot bypass the inflate cap", () => {
+    // 9 MB of zeros gzips to a few KB; padding the input to 3 MB used to size the
+    // output buffer at 12 MB up front, so the 8 MB cap never fired.
+    const member = zlib.gzipSync(Buffer.alloc(9 * 1024 * 1024));
+    const padded = Buffer.concat([member, Buffer.alloc(3 * 1024 * 1024, 0x41)]);
+    assert.equal(Tools.decompress(padded), null);
+    assert.throws(() => Tools.inflateRaw(padded, 10), /exceeds 8 MB/);
+    const small = zlib.gzipSync(Buffer.from("hello"));
+    assert.equal(Buffer.from(Tools.decompress(Buffer.concat([small, Buffer.alloc(1024, 0x41)])).bytes).toString(), "hello");
+  });
+
   await test("gzip Base64 pastes are decompressed by the auto-detect", () => {
     const text = JSON.stringify({ ok: true, user: "ada", roles: ["admin", "ops"] });
     const result = analyze(zlib.gzipSync(text).toString("base64"));

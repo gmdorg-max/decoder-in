@@ -152,7 +152,10 @@
     let pos = start;
     let bitbuf = 0;
     let bitcnt = 0;
-    let out = new Uint8Array(Math.max(1024, data.length * 4));
+    // Start at 4x the input but never above the cap: a small gzip padded with
+    // junk has a large data.length, and the old buffer skipped the cap check
+    // until it needed to grow, which it never did.
+    let out = new Uint8Array(Math.min(Math.max(1024, data.length * 4), MAX_INFLATE));
     let outLen = 0;
 
     function need(n) {
@@ -170,8 +173,8 @@
       return value;
     }
     function emit(byte) {
+      if (outLen >= MAX_INFLATE) throw new Error("Decompressed output exceeds 8 MB");
       if (outLen === out.length) {
-        if (out.length >= MAX_INFLATE) throw new Error("Decompressed output exceeds 8 MB");
         const bigger = new Uint8Array(Math.min(out.length * 2, MAX_INFLATE));
         bigger.set(out);
         out = bigger;

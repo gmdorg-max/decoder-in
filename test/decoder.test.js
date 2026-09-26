@@ -68,3 +68,18 @@ assert.equal(bearerHeaders.type, "HTTP headers");
 assert.ok(bearerHeaders.layers.some((layer) => layer.type === "Bearer JWT payload" && layer.value.name === "Ada"));
 
 console.log("All decoder tests passed.");
+
+// Deep nesting: JSON.parse accepts it, JSON.stringify and the renderer do not.
+// analyze() must return a result instead of throwing (the page kept the previous
+// input's result on screen when it threw).
+{
+  const deep = "[".repeat(100000) + "]".repeat(100000);
+  const result = analyze(deep, Date.now(), { tool: "json" });
+  assert.equal(result.type, "Deeply nested JSON");
+  assert.ok(result.notices.some((n) => /512 levels/.test(n)));
+  assert.equal(result.output, deep);
+  const wrapped = analyze(Buffer.from(deep).toString("base64"));
+  assert.ok(["Base64", "Deeply nested JSON", "Plain text"].includes(wrapped.type), wrapped.type);
+  const fine = analyze("[".repeat(100) + "]".repeat(100));
+  assert.equal(fine.type, "JSON");
+}
