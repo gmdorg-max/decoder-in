@@ -441,10 +441,11 @@ const PAGES = [
       ["Mail records", [
         "<strong>SPF</strong>: every mechanism, the qualifier on all, deprecated ptr, and the DNS lookup count against the limit of 10. <strong>DMARC</strong>: policy, subdomain policy, percentage, alignment and report addresses. <strong>DKIM</strong>: key type and size, testing flag and revocation.",
         "Pair it with the <a href=\"/email-header-analyzer/\">email header analyzer</a> to see how receivers actually judged a message.",
+        "Need the live records first? <a href=\"https://ip6.in/\">ip6.in</a>, the hosting readiness check by swiss.software, looks up a domain's SPF, DMARC, MX and IPv6 setup in one click; paste the records here for the full breakdown.",
       ]],
     ],
     faq: [
-      ["Does it query DNS?", "No. decoder.in makes no network requests. Look the record up with dig or your DNS provider, then paste it here."],
+      ["Does it query DNS?", "No. decoder.in makes no network requests. Look the record up with dig or your DNS provider, or test your live domain in one click on ip6.in, then paste the record here."],
       ["Why does my SPF fail with 11 lookups?", "SPF allows at most 10 DNS lookups in total, including those inside every include. Flatten or remove includes you no longer use."],
     ],
   },
