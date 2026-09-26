@@ -61,7 +61,14 @@ function render() {
     return;
   }
 
-  const analysis = Decoder.analyze(value, Date.now(), { tool });
+  let analysis;
+  try {
+    analysis = Decoder.analyze(value, Date.now(), { tool });
+  } catch (error) {
+    // Never leave the previous input's result on screen for a new input.
+    analysis = { type: "Could not analyze", confidence: 0, layers: [], output: "", jwt: null, check: null,
+      notices: [`Decoder could not process this input (${error && error.name ? error.name : "error"}). Nothing was sent anywhere; try a smaller or less nested payload.`] };
+  }
   latestOutput = analysis.output;
   emptyState.hidden = true;
   results.hidden = false;

@@ -8,9 +8,30 @@
   const Tools = typeof module === "object" && typeof require === "function" ? require("./tools.js") : globalThis.DecoderTools;
   const Proto = typeof module === "object" && typeof require === "function" ? require("./protocols.js") : globalThis.DecoderProtocols;
   const MAX_LAYERS = 6;
+  // JSON.parse copes with very deep nesting; JSON.stringify and the page renderer
+  // do not (RangeError), which used to leave the previous result on screen.
+  const MAX_JSON_DEPTH = 512;
+
+  function nestingDepth(text) {
+    let depth = 0;
+    let max = 0;
+    let inString = false;
+    for (let i = 0; i < text.length; i += 1) {
+      const ch = text[i];
+      if (inString) {
+        if (ch === "\\") i += 1;
+        else if (ch === "\"") inString = false;
+      } else if (ch === "\"") inString = true;
+      else if (ch === "{" || ch === "[") { depth += 1; if (depth > max) max = depth; }
+      else if (ch === "}" || ch === "]") depth -= 1;
+      if (max > MAX_JSON_DEPTH) return max;
+    }
+    return max;
+  }
 
   function prettify(value) {
-    return typeof value === "string" ? value : JSON.stringify(value, null, 2);
+    if (typeof value === "string") return value;
+    try { return JSON.stringify(value, null, 2); } catch { return String(value); }
   }
 
   function decodeBase64(value) {
@@ -31,6 +52,7 @@
   }
 
   function parseJson(value) {
+    if (nestingDepth(value) > MAX_JSON_DEPTH) return null;
     try { return JSON.parse(value); } catch { return null; }
   }
 
@@ -357,6 +379,11 @@
 
     const notices = [];
     const layers = [];
+    if ((raw[0] === "{" || raw[0] === "[") && nestingDepth(raw) > MAX_JSON_DEPTH) {
+      layers.push({ type: "Original input", detail: `${raw.length} characters`, value: raw.length > 4096 ? raw.slice(0, 4096) + "…" : raw });
+      notices.push(`The input is JSON nested more than ${MAX_JSON_DEPTH} levels deep. Decoder does not expand it; it is shown unchanged.`);
+      return { type: "Deeply nested JSON", confidence: 90, layers, notices, output: raw };
+    }
     const first = toolFirst(raw, now, tool);
     if (first) return first;
 
