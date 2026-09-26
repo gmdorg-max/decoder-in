@@ -20,7 +20,7 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>Email header analyzer — SPF, DKIM, DMARC and delivery route — decoder.in</title>
-    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
+    <link rel="stylesheet" href="/styles.css?v=20260926-2" />
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Email header analyzer — SPF, DKIM, DMARC and delivery route","url":"https://decoder.in/email-header-analyzer/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my email content sent anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Only the header block is read, in your browser, and the body is ignored."}},{"@type":"Question","name":"Why does a legitimate newsletter show a different Return-Path?","acceptedAnswer":{"@type":"Answer","text":"Mailing services send bounces to their own domain. That is normal when DKIM and DMARC still pass."}}]}]}</script>
   </head>
   <body data-tool="email">
@@ -31,13 +31,14 @@
       </a>
       <div class="header-actions">
         <nav aria-label="Primary navigation">
-          <a href="/#tools">Tools</a>
+          <a href="#tools">All tools</a>
           <a href="/docs/">Docs</a>
           <a href="/privacy/">Privacy</a>
         </nav>
         <div class="privacy-pill"><span></span> Local only</div>
       </div>
     </header>
+    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/" aria-current="page">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
 
     <main>
       <section class="hero">
@@ -93,6 +94,11 @@
             </div>
 
             <div id="notices"></div>
+            <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check">
+              <label for="checkKey">PKCE: check the code_verifier</label>
+              <textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea>
+              <p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p>
+            </section>
             <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
               <label for="verifyKey">Verify signature</label>
               <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
@@ -106,9 +112,10 @@
       <p class="tool-hint">Gmail: ⋮ → Show original. Outlook: File → Properties → Internet headers. Apple Mail: View → Message → All Headers. Copy everything above the message body.</p>
 
       <nav class="tool-links" id="tools" aria-label="Decoder tools">
-        <h2>Tools</h2>
-        <div><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/certificate-decoder/">Certificate decoder</a><a href="/http-security-headers/">Security headers check</a><a href="/saml-decoder/">SAML decoder</a><a href="/email-header-analyzer/" aria-current="page">Email header analyzer</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a></div>
+        <h2>All tools</h2>
+        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/" aria-current="page">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
       </nav>
+
 
       <article class="content-page tool-guide">
         <section class="content-section"><h2>Reading the result</h2><p><strong>Authentication</strong> shows what the receiving server decided. DMARC is the one that matters: it ties the visible From address to a domain that passed SPF or DKIM.</p><p><strong>Delivery route</strong> lists the servers oldest first with the time each one added. Long gaps point at the server that held the message.</p><p><strong>Warnings</strong> flag failed checks, a bounce address or Reply-To on an unrelated domain, and delays over ten minutes.</p></section>
@@ -118,7 +125,7 @@
     </main>
 
     <footer>
-      <span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <span>decoder.in · beta 0.4.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
       <nav aria-label="Footer navigation">
         <a href="/docs/">Documentation</a>
         <a href="/privacy/">Privacy</a>
@@ -127,9 +134,10 @@
       </nav>
     </footer>
 
-    <script src="/tools.js?v=20260926-1"></script>
-    <script src="/decoder.js?v=20260926-1"></script>
-    <script src="/examples.js?v=20260926-1"></script>
-    <script src="/app.js?v=20260926-1"></script>
+    <script src="/tools.js?v=20260926-2"></script>
+    <script src="/protocols.js?v=20260926-2"></script>
+    <script src="/decoder.js?v=20260926-2"></script>
+    <script src="/examples.js?v=20260926-2"></script>
+    <script src="/app.js?v=20260926-2"></script>
   </body>
 </html>

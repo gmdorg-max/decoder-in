@@ -939,13 +939,18 @@
       }
     }
 
-    if (/^\d{15,20}$/.test(value) && BigInt(value) < 2n ** 63n) {
+    // 16 digits is read as a microsecond timestamp instead.
+    if (/^\d{15,20}$/.test(value) && value.length !== 16 && BigInt(value) < 2n ** 63n) {
       const id = BigInt(value);
       const epochs = [["Twitter / X", 1288834974657], ["Discord", 1420070400000], ["Instagram", 1314220021721]];
       const readings = {};
       for (const [service, epoch] of epochs) {
         const ms = Number(id >> 22n) + epoch;
         if (plausible(ms, now) && ms > epoch) readings[`If ${service}`] = new Date(ms).toISOString();
+      }
+      if (value.length === 19) {
+        const nsMs = Number(id / 1000000n);
+        if (plausible(nsMs, now) && nsMs > Date.UTC(2000, 0, 1)) readings["If a nanosecond timestamp"] = new Date(nsMs).toISOString();
       }
       if (Object.keys(readings).length) {
         readings.Sequence = String(Number(id & 0xfffn));

@@ -134,16 +134,28 @@ footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
 .tool-hint code { padding: 2px 5px; background: #e7e3d8; color: var(--ink); font: 12px/1.5 ui-monospace, monospace; }
 .tool-links { margin: 70px 0 0; padding-top: 26px; border-top: 1px solid var(--line); }
 .tool-links h2 { margin: 0 0 16px; font: 700 11px/1 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.tool-links div { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
-.tool-links a { padding: 16px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 700; font-size: 14px; text-decoration: none; }
-.tool-links a:nth-child(3n) { border-right: 0; }
-.tool-links a:nth-last-child(-n+3) { border-bottom: 0; }
+.tool-links div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); }
+.tool-links section { display: flex; flex-direction: column; border-right: 1px solid var(--line); }
+.tool-links section:last-child { border-right: 0; }
+.tool-links h3 { margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.35); font: 700 10px/1 ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.tool-links a { padding: 13px 16px; border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 700; font-size: 14px; text-decoration: none; }
+.tool-links a:last-child { border-bottom: 0; }
 .tool-links a:hover, .tool-links a[aria-current="page"] { background: var(--acid); }
+
+/* 0.4: every tool one click away, right under the header */
+.tool-bar { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 10px 0; display: flex; flex-wrap: wrap; gap: 6px 18px; border-bottom: 1px solid var(--line); }
+.tool-group { display: flex; flex-wrap: wrap; gap: 4px; }
+.tool-group + .tool-group::before { content: ""; align-self: center; width: 1px; height: 14px; margin-right: 8px; background: var(--line); }
+.tool-bar a { padding: 5px 9px; border: 1px solid transparent; border-radius: 999px; color: var(--muted); font: 700 11px/1 ui-monospace, monospace; letter-spacing: .04em; text-decoration: none; white-space: nowrap; }
+.tool-bar a:hover { color: var(--ink); border-color: var(--line); }
+.tool-bar a[aria-current="page"] { color: var(--ink); background: var(--acid); border-color: var(--ink); }
 .tool-guide { padding-top: 40px; }
 footer span a { color: inherit; }
 
 @media (max-width: 760px) {
   .tool-links div { grid-template-columns: 1fr; }
-  .tool-links a { border-right: 0; border-bottom: 1px solid var(--line) !important; }
-  .tool-links a:last-child { border-bottom: 0 !important; }
+  .tool-links section { border-right: 0; border-bottom: 1px solid var(--line); }
+  .tool-links section:last-child { border-bottom: 0; }
+  .tool-bar { width: min(100% - 24px, 1180px); gap: 4px 10px; }
+  .tool-group + .tool-group::before { display: none; }
 }

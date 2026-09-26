@@ -14,6 +14,7 @@ const tool = document.body.dataset.tool || "home";
 const examples = (globalThis.DecoderExamples && globalThis.DecoderExamples[tool]) || [];
 let latestOutput = "";
 let latestToken = null;
+let latestCheck = null;
 let exampleIndex = 0;
 let verifyRun = 0;
 
@@ -60,7 +61,7 @@ function render() {
     return;
   }
 
-  const analysis = Decoder.analyze(value);
+  const analysis = Decoder.analyze(value, Date.now(), { tool });
   latestOutput = analysis.output;
   emptyState.hidden = true;
   results.hidden = false;
@@ -80,7 +81,35 @@ function render() {
     latestToken = token;
     if (token) verify();
   }
+
+  const check = analysis.check || null;
+  if (JSON.stringify(check) !== JSON.stringify(latestCheck)) {
+    latestCheck = check;
+    checkPanel.hidden = !check;
+    if (check) { checkKey.value = ""; setCheck("idle", "Paste the code_verifier to confirm it matches the code_challenge."); }
+  }
 }
+
+const checkPanel = document.querySelector("#checkPanel");
+const checkKey = document.querySelector("#checkKey");
+const checkResult = document.querySelector("#checkResult");
+
+function setCheck(state, message) {
+  checkResult.textContent = message;
+  checkResult.dataset.state = state;
+}
+
+function runCheck() {
+  if (!latestCheck || latestCheck.kind !== "pkce") return;
+  const verifier = checkKey.value.trim();
+  if (!verifier) { setCheck("idle", "Paste the code_verifier to confirm it matches the code_challenge."); return; }
+  if (!/^[A-Za-z0-9-._~]{43,128}$/.test(verifier)) { setCheck("bad", "A code_verifier is 43 to 128 characters of A-Z a-z 0-9 - . _ ~"); return; }
+  const challenge = DecoderProtocols.pkceChallenge(verifier);
+  setCheck(challenge === latestCheck.challenge ? "ok" : "bad", challenge === latestCheck.challenge
+    ? "The verifier matches: BASE64URL(SHA256(code_verifier)) equals the code_challenge."
+    : `No match. This verifier gives ${challenge}, the request carries ${latestCheck.challenge}.`);
+}
+checkKey.addEventListener("input", runCheck);
 
 payload.addEventListener("input", render);
 verifyKey.addEventListener("input", verify);

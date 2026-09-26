@@ -7,51 +7,12 @@ Built by [swiss.software](https://swiss.software/). Free to use.
 
 ## What it reads
 
-| Tool | Page |
+Seventeen tools, one input box. Every page recognises every format; each page just leads with its own.
+
+| Group | Tools |
 |---|---|
-| JWTs: claims, expiry, and signature verification (HS, RS, PS, ES, EdDSA) with a secret, PEM key, certificate, JWK or JWKS | [/jwt-decoder/](https://decoder.in/jwt-decoder/) |
-| X.509 certificates, chains, CSRs and public keys: domains, expiry, key, fingerprints, chain order | [/certificate-decoder/](https://decoder.in/certificate-decoder/) |
-| HTTP response headers: graded CSP, HSTS, framing, cookies, CORS, version leaks | [/http-security-headers/](https://decoder.in/http-security-headers/) |
-| SAML redirect URLs, SAMLRequest / SAMLResponse values and XML | [/saml-decoder/](https://decoder.in/saml-decoder/) |
-| Email headers: SPF, DKIM, DMARC, delivery route, spoofing signs | [/email-header-analyzer/](https://decoder.in/email-header-analyzer/) |
-| UUID v1–v8, ULID, MongoDB ObjectId, Snowflake IDs | [/uuid-decoder/](https://decoder.in/uuid-decoder/) |
-| cURL commands, raw HTTP requests, JSON (with repair hints), Base64, URL encoding, gzip/zlib/deflate, Unix timestamps | [/](https://decoder.in/) |
+| Tokens & identity | [JWT decoder & verifier](https://decoder.in/jwt-decoder/) · [JWE & JWK inspector](https://decoder.in/jwe-jwk-decoder/) · [OAuth, OIDC & PKCE checker](https://decoder.in/oauth-decoder/) · [SAML decoder](https://decoder.in/saml-decoder/) · [WebAuthn & passkey inspector](https://decoder.in/webauthn-decoder/) |
+| Certificates & keys | [Certificate decoder](https://decoder.in/certificate-decoder/) · [SSH key inspector](https://decoder.in/ssh-key-decoder/) |
+| Web, mail & network | [Security headers check](https://decoder.in/http-security-headers/) · [cURL & HTTP request parser](https://decoder.in/curl-parser/) · [Email header analyzer](https://decoder.in/email-header-analyzer/) · [DNS, DoH, SPF & DMARC decoder](https://decoder.in/dns-decoder/) |
+| Data & encodings | [Base64](https://decoder.in/base64-decoder/) · [URL](https://decoder.in/url-decoder/) · [JSON formatter](https://decoder.in/json-formatter/) · [Unix timestamp converter](https://decoder.in/timestamp-converter/) · [UUID & ID decoder](https://decoder.in/uuid-decoder/) · [Protobuf decoder](https://decoder.in/protobuf-decoder/) |
 
-## Privacy by construction
-
-Everything runs in the browser. There are no dependencies, no build step for the
-runtime code, no analytics and no backend. The code never sends what you paste
-anywhere, and production serves the site with a Content-Security-Policy that
-limits every request to decoder.in itself (`connect-src 'none'`, no third-party
-scripts, images or frames). Signature checks use the browser's Web Crypto API.
-
-## Layout
-
-```
-public/          everything that is served (deploy this directory)
-  tools.js       certificates (ASN.1/DER), inflate, SHA-1/256, XML/SAML, IDs, email, headers, JWT verify
-  decoder.js     the auto-detect: decides what a paste is and builds the result layers
-  app.js         the page UI
-  examples.js    generated: the "Try example" payloads
-build/pages.js   generates the tool pages, examples.js and sitemap.xml from one template
-build/serve.js   local preview with the production security headers
-test/            node tests; fixtures were generated with openssl
-```
-
-## Develop
-
-Requires Node.js 20 or newer; no packages to install.
-
-```sh
-npm test              # page check + decoder tests + tool tests
-node build/pages.js   # regenerate pages after editing build/pages.js or the fixtures
-node build/serve.js   # preview on http://127.0.0.1:8765 with the production CSP
-```
-
-## Security
-
-Found a problem? Write to hello@swiss.software with "decoder.in security" in the subject (see `/.well-known/security.txt`).
-
-## Licence
-
-MIT, see [LICENSE](LICENSE).

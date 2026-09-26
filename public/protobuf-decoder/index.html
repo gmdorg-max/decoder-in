@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Decode Protocol Buffers messages without the .proto file: field numbers, varints, zigzag, fixed64/32, strings and nested messages from Base64 or hex, in your browser." />
+    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="application-name" content="decoder.in" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://decoder.in/protobuf-decoder/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="decoder.in" />
+    <meta property="og:title" content="Protobuf decoder without a schema — raw wire format — decoder.in" />
+    <meta property="og:description" content="Decode Protocol Buffers messages without the .proto file: field numbers, varints, zigzag, fixed64/32, strings and nested messages from Base64 or hex, in your browser." />
+    <meta property="og:url" content="https://decoder.in/protobuf-decoder/" />
+    <meta property="og:image" content="https://decoder.in/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Protobuf decoder without a schema — raw wire format — decoder.in</title>
+    <link rel="stylesheet" href="/styles.css?v=20260926-2" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Protobuf decoder without a schema — raw wire format","url":"https://decoder.in/protobuf-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a string always a string?","acceptedAnswer":{"@type":"Answer","text":"No. The wire format has one type for strings, bytes and nested messages. Decoder picks the reading that fits best; the schema decides the truth."}},{"@type":"Question","name":"Why is -1 shown as 18446744073709551615?","acceptedAnswer":{"@type":"Answer","text":"Negative int32 and int64 values are encoded as 10-byte varints. Decoder shows the int64 reading next to it."}}]}]}</script>
+  </head>
+  <body data-tool="protobuf">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="decoder.in home">
+        <span class="wordmark-mark" aria-hidden="true">d/</span>
+        <span>decoder.in</span>
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Primary navigation">
+          <a href="#tools">All tools</a>
+          <a href="/docs/">Docs</a>
+          <a href="/privacy/">Privacy</a>
+        </nav>
+        <div class="privacy-pill"><span></span> Local only</div>
+      </div>
+    </header>
+    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/" aria-current="page">Protobuf</a></span></nav>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
+        <h1>Decode Protobuf<br /><em>without a schema.</em></h1>
+        <p class="intro">Paste a Protocol Buffers message as Base64 or hex, such as a gRPC body, a Firebase payload or a captured request. Decoder reads the wire format like protoc --decode_raw.</p>
+      </section>
+
+      <div class="capability-strip" aria-label="Supported inspections">
+        <span>Base64 or hex</span>
+        <span>Nested messages</span>
+        <span>varint · zigzag · fixed</span>
+        <span>No .proto needed</span>
+      </div>
+
+      <section class="workspace" aria-label="Decoder workspace">
+        <div class="input-panel">
+          <div class="panel-heading">
+            <label for="payload">Input</label>
+            <div class="input-actions">
+              <button class="text-button" id="exampleButton" type="button">Try example</button>
+              <button class="text-button" id="clearButton" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="payload"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Paste Base64 or hex bytes (08 96 01 …)…"
+          ></textarea>
+          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
+        </div>
+
+        <div class="result-panel" id="resultPanel" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Waiting for a signal</h2>
+            <p>Decoder will inspect the structure, not guess at its meaning.</p>
+          </div>
+
+          <div class="results" id="results" hidden>
+            <div class="result-topline">
+              <div>
+                <p class="result-label">Detected as</p>
+                <h2 id="detectedType">Unknown</h2>
+              </div>
+              <button class="copy-button" id="copyButton" type="button">Copy output</button>
+            </div>
+
+            <div class="confidence-row">
+              <span id="confidenceText">High confidence</span>
+              <div class="confidence-track"><span id="confidenceBar"></span></div>
+            </div>
+
+            <div id="notices"></div>
+            <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check">
+              <label for="checkKey">PKCE: check the code_verifier</label>
+              <textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea>
+              <p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p>
+            </section>
+            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
+              <label for="verifyKey">Verify signature</label>
+              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
+              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
+            </section>
+            <div class="layers" id="layers"></div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tool-links" id="tools" aria-label="Decoder tools">
+        <h2>All tools</h2>
+        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/" aria-current="page">Protobuf decoder</a></section></div>
+      </nav>
+
+
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>How to read the output</h2><p>Each line is <code>field: value</code>, with nested messages in braces, the same layout as <code>protoc --decode_raw</code>. Without the schema the names are unknown, so the numbers are what the .proto file calls field tags.</p><p>Varints show their unsigned value and, as a comment, the zigzag (sint) reading. Fixed 64- and 32-bit fields show the double/float and integer readings. Length-delimited fields become a string when they are readable text, a nested message when they parse as one, and bytes otherwise; bytes that parse as a list of varints are marked as possibly packed.</p></section>
+        <section class="content-section"><h2>gRPC bodies</h2><p>A gRPC message on the wire starts with 5 extra bytes: a compression flag and a 4-byte length. Remove them before pasting, or paste the message field from your gRPC tool.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Is a string always a string?</h3><p>No. The wire format has one type for strings, bytes and nested messages. Decoder picks the reading that fits best; the schema decides the truth.</p><h3>Why is -1 shown as 18446744073709551615?</h3><p>Negative int32 and int64 values are encoded as 10-byte varints. Decoder shows the int64 reading next to it.</p></section>
+      </article>
+    </main>
+
+    <footer>
+      <span>decoder.in · beta 0.4.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <nav aria-label="Footer navigation">
+        <a href="/docs/">Documentation</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
+        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
+      </nav>
+    </footer>
+
+    <script src="/tools.js?v=20260926-2"></script>
+    <script src="/protocols.js?v=20260926-2"></script>
+    <script src="/decoder.js?v=20260926-2"></script>
+    <script src="/examples.js?v=20260926-2"></script>
+    <script src="/app.js?v=20260926-2"></script>
+  </body>
+</html>

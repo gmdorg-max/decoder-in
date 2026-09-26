@@ -1,0 +1,5 @@
+ed25519 256 SHA256:/p9nCyJPtSmeUnZNkI1wZVP1/0Q72knzJgAo1R+DTwo ada@laptop (ED25519) | 256 MD5:fa:38:46:81:21:94:33:4d:ff:37:5b:e3:cc:cf:6b:28 ada@laptop (ED25519)
+rsa3072 3072 SHA256:syFBAF9gS1nihCGa2XrV+xZF1RS/1BugdoltySh5DAA deploy@ci (RSA) | 3072 MD5:2f:be:ab:79:52:b5:f3:41:1c:01:49:1b:38:f6:45:9e deploy@ci (RSA)
+ecdsa384 384 SHA256:b+CECUqByH1/DGvSJc+A1pitwbQPG09v2iqJjpHNLio no comment (ECDSA) | 384 MD5:0d:e5:41:02:f1:a1:c0:bf:d8:f9:65:e2:e9:a8:cb:fc no comment (ECDSA)
+rsa1024 1024 SHA256:DYxjuH43xAKif33mN4FvDKeDqYN6Y3BhXScCQXnfPdA old-key (RSA) | 1024 MD5:76:ef:62:10:f5:8a:3c:72:31:35:9c:c7:89:f5:47:ed old-key (RSA)
+ed25519-cert 256 SHA256:/p9nCyJPtSmeUnZNkI1wZVP1/0Q72knzJgAo1R+DTwo ada@laptop (ED25519-CERT) | 256 MD5:fa:38:46:81:21:94:33:4d:ff:37:5b:e3:cc:cf:6b:28 ada@laptop (ED25519-CERT)
