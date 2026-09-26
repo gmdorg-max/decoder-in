@@ -164,7 +164,7 @@ const PAGES = [
     description: "17 private developer tools in one box: JWT, OAuth/PKCE, SAML, passkeys, certificates, SSH keys, security and email headers, DNS/SPF, Base64, JSON, timestamps, UUIDs and protobuf. Decoded in your browser.",
     ogTitle: "decoder.in — Make encoded data readable",
     h1: ["Make encoded data", "readable."],
-    intro: "Paste a token, key, certificate, URL, header, record, ID, JSON or encoded string. Decoder identifies it and unwraps every layer in your browser. Or pick a tool above.",
+    intro: "Paste a token, key, certificate, URL, header, record, ID, JSON or encoded string. Decoder identifies it and unwraps every layer in your browser. Or pick a tool below.",
     placeholder: "Paste a token, certificate, request, headers, JSON, or encoded value…",
     chips: ["Tokens & identity", "Certificates & keys", "Web, mail & network", "Data & encodings"],
   },
