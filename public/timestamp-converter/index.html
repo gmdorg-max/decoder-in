@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Convert Unix timestamps in seconds, milliseconds, microseconds or nanoseconds to dates, and ISO 8601 or email dates back to Unix time, with UTC, local time and relative time." />
-    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="theme-color" content="#f6f3ed" />
     <meta name="application-name" content="decoder.in" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://decoder.in/timestamp-converter/" />
@@ -20,121 +20,82 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>Unix timestamp converter — seconds, ms, µs, ns and dates — decoder.in</title>
-    <link rel="stylesheet" href="/styles.css?v=20260926-2" />
+    <link rel="stylesheet" href="/styles.css?v=20260926-3" />
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Unix timestamp converter — seconds, ms, µs, ns and dates","url":"https://decoder.in/timestamp-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Unix epoch?","acceptedAnswer":{"@type":"Answer","text":"1 January 1970 00:00:00 UTC. A Unix timestamp counts the seconds (or smaller units) since then, ignoring leap seconds."}},{"@type":"Question","name":"Why does my timestamp land in 1970?","acceptedAnswer":{"@type":"Answer","text":"It is probably in a larger unit than assumed, or has been truncated. Check the digit count: 10 digits are seconds, 13 milliseconds, 16 microseconds and 19 nanoseconds."}}]}]}</script>
   </head>
   <body data-tool="timestamp">
-    <header class="site-header">
-      <a class="wordmark" href="/" aria-label="decoder.in home">
-        <span class="wordmark-mark" aria-hidden="true">d/</span>
-        <span>decoder.in</span>
-      </a>
-      <div class="header-actions">
-        <nav aria-label="Primary navigation">
-          <a href="#tools">All tools</a>
-          <a href="/docs/">Docs</a>
-          <a href="/privacy/">Privacy</a>
-        </nav>
-        <div class="privacy-pill"><span></span> Local only</div>
-      </div>
+    <a class="skip-link" href="#workspace">Skip to inspector</a>
+    <header class="site-header shell">
+      <a class="wordmark" href="/" aria-label="decoder.in home"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a>
+      <nav class="primary-nav" aria-label="Primary navigation"><a class="active" aria-current="page" href="#workspace">Inspector</a><a href="#tools">All tools</a><a href="/docs/">Docs</a><a href="/privacy/">Privacy</a></nav>
+      <span class="privacy-pill"><span class="status-dot"></span>Local only</span>
     </header>
-    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/" aria-current="page">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
 
     <main>
-      <section class="hero">
-        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
-        <h1>Convert<br /><em>timestamps.</em></h1>
-        <p class="intro">Paste a Unix timestamp in seconds, milliseconds, microseconds or nanoseconds, or paste a date to get its Unix time. Decoder shows UTC, your local time, and how long ago or ahead it is.</p>
+      <section class="hero shell" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> Unix timestamp converter <span class="eyebrow-index">/ 01</span></p>
+          <h1 id="page-title">Convert<br /><em>timestamps.</em></h1>
+          <p class="intro">Paste a Unix timestamp in seconds, milliseconds, microseconds or nanoseconds, or paste a date to get its Unix time. Decoder shows UTC, your local time, and how long ago or ahead it is.</p>
+          <div class="hero-tags" aria-label="Supported inspections"><span>s · ms · µs · ns</span><span>Date to Unix time</span><span>UTC and local</span><span>Relative time</span></div>
+          <div class="hero-actions"><a class="button-primary" href="#payload">Start decoding <span aria-hidden="true">↗</span></a><a class="button-secondary" href="#tools">Browse all tools <span aria-hidden="true">↓</span></a></div>
+        </div>
+        <div class="hero-graphic" aria-hidden="true"><span class="graphic-label">INPUT → INSIGHT</span><span class="graphic-glyph">d<span>/</span></span><span class="graphic-foot"><span>01 / DETECT</span><span>02 / UNWRAP</span><span>03 / VERIFY</span></span></div>
       </section>
 
-      <div class="capability-strip" aria-label="Supported inspections">
-        <span>s · ms · µs · ns</span>
-        <span>Date to Unix time</span>
-        <span>UTC and local</span>
-        <span>Relative time</span>
-      </div>
-
-      <section class="workspace" aria-label="Decoder workspace">
-        <div class="input-panel">
-          <div class="panel-heading">
-            <label for="payload">Input</label>
-            <div class="input-actions">
-              <button class="text-button" id="exampleButton" type="button">Try example</button>
-              <button class="text-button" id="clearButton" type="button">Clear</button>
+      <section class="work-section" id="workspace" aria-labelledby="work-title">
+        <div class="shell">
+          <div class="section-head"><div><p class="section-kicker">The workbench / 01</p><h2 id="work-title">Inspect your input</h2></div><p>Recognizes common formats automatically. No selection needed.</p></div>
+          <div class="workspace" aria-label="Decoder workspace">
+            <div class="input-panel">
+              <div class="panel-heading"><label for="payload"><span class="panel-number">01</span> Input</label><div class="input-actions"><button id="exampleButton" type="button">Try example <span aria-hidden="true">↗</span></button><button id="clearButton" type="button">Clear</button></div></div>
+              <textarea id="payload" spellcheck="false" autocomplete="off" placeholder="Paste 1790380800, 1790380800123, or 2026-09-26T08:00:00Z…"></textarea>
+              <div class="panel-foot"><span>⌘ / Ctrl + V</span><span>Data stays in this tab <span class="tiny-dot"></span></span></div>
             </div>
-          </div>
-          <textarea
-            id="payload"
-            spellcheck="false"
-            autocomplete="off"
-            placeholder="Paste 1790380800, 1790380800123, or 2026-09-26T08:00:00Z…"
-          ></textarea>
-          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
-        </div>
-
-        <div class="result-panel" id="resultPanel" aria-live="polite">
-          <div class="empty-state" id="emptyState">
-            <div class="radar" aria-hidden="true"><span></span></div>
-            <h2>Waiting for a signal</h2>
-            <p>Decoder will inspect the structure, not guess at its meaning.</p>
-          </div>
-
-          <div class="results" id="results" hidden>
-            <div class="result-topline">
-              <div>
-                <p class="result-label">Detected as</p>
-                <h2 id="detectedType">Unknown</h2>
+            <div class="result-panel" id="resultPanel" aria-live="polite">
+              <div class="panel-heading"><span><span class="panel-number">02</span> Analysis</span><span class="panel-meta">Local output</span></div>
+              <div class="empty-state" id="emptyState"><div class="empty-symbol" aria-hidden="true"><span>[</span> _ <span>]</span></div><h3>Waiting for input.</h3><p>Paste something in the left panel, or load an example to see the decoder at work.</p></div>
+              <div class="results" id="results" hidden>
+                <div class="result-topline"><div><p class="result-label">Detected as</p><h3 id="detectedType">Unknown</h3></div><button class="copy-button" id="copyButton" type="button">Copy output</button></div>
+                <div class="confidence-row"><span id="confidenceText">High confidence</span><div class="confidence-track"><span id="confidenceBar"></span></div></div>
+                <div id="notices"></div>
+                <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check"><label for="checkKey">PKCE: check the code_verifier</label><textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea><p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p></section>
+                <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature"><label for="verifyKey">Verify signature</label><textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea><p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p></section>
+                <div class="layers" id="layers"></div>
               </div>
-              <button class="copy-button" id="copyButton" type="button">Copy output</button>
             </div>
-
-            <div class="confidence-row">
-              <span id="confidenceText">High confidence</span>
-              <div class="confidence-track"><span id="confidenceBar"></span></div>
-            </div>
-
-            <div id="notices"></div>
-            <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check">
-              <label for="checkKey">PKCE: check the code_verifier</label>
-              <textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea>
-              <p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p>
-            </section>
-            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
-              <label for="verifyKey">Verify signature</label>
-              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
-              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
-            </section>
-            <div class="layers" id="layers"></div>
           </div>
+          <p class="workspace-note"><span class="note-icon">↳</span> Decoding is not verification. When a format supports verification, check the result against a trusted key.</p>
         </div>
       </section>
 
-      <nav class="tool-links" id="tools" aria-label="Decoder tools">
-        <h2>All tools</h2>
-        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/" aria-current="page">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
-      </nav>
+      <section class="tools-section shell" id="tools" aria-labelledby="tools-title">
+        <div class="section-head tools-head"><div><p class="section-kicker">The tool library / 02</p><h2 id="tools-title">Go straight to the right tool.</h2></div><p>Focused inspectors for specific formats. Every one runs in your browser.</p></div>
+        <div class="tool-directory">
+          <section class="tool-group" aria-labelledby="group-1"><div class="group-title"><span>01 /</span><h3 id="group-1">Tokens &amp; identity</h3></div><div class="group-links"><a href="/jwt-decoder/">JWT decoder &amp; verifier <span aria-hidden="true">→</span></a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector <span aria-hidden="true">→</span></a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker <span aria-hidden="true">→</span></a><a href="/saml-decoder/">SAML decoder <span aria-hidden="true">→</span></a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector <span aria-hidden="true">→</span></a></div></section>
+          <section class="tool-group" aria-labelledby="group-2"><div class="group-title"><span>02 /</span><h3 id="group-2">Certificates &amp; keys</h3></div><div class="group-links"><a href="/certificate-decoder/">Certificate decoder <span aria-hidden="true">→</span></a><a href="/ssh-key-decoder/">SSH key inspector <span aria-hidden="true">→</span></a></div></section>
+          <section class="tool-group" aria-labelledby="group-3"><div class="group-title"><span>03 /</span><h3 id="group-3">Web, mail &amp; network</h3></div><div class="group-links"><a href="/http-security-headers/">Security headers check <span aria-hidden="true">→</span></a><a href="/curl-parser/">cURL &amp; HTTP request parser <span aria-hidden="true">→</span></a><a href="/email-header-analyzer/">Email header analyzer <span aria-hidden="true">→</span></a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder <span aria-hidden="true">→</span></a></div></section>
+          <section class="tool-group" aria-labelledby="group-4"><div class="group-title"><span>04 /</span><h3 id="group-4">Data &amp; encodings</h3></div><div class="group-links"><a href="/base64-decoder/">Base64 decoder <span aria-hidden="true">→</span></a><a href="/url-decoder/">URL decoder <span aria-hidden="true">→</span></a><a href="/json-formatter/">JSON formatter &amp; validator <span aria-hidden="true">→</span></a><a href="/timestamp-converter/" aria-current="page">Unix timestamp converter <span aria-hidden="true">→</span></a><a href="/uuid-decoder/">UUID &amp; ID decoder <span aria-hidden="true">→</span></a><a href="/protobuf-decoder/">Protobuf decoder <span aria-hidden="true">→</span></a></div></section>
+        </div>
+      </section>
 
 
-      <article class="content-page tool-guide">
+      <section class="guide shell"><article class="content-page tool-guide">
         <section class="content-section"><h2>Recognised forms</h2><p>10 digits are seconds, 13 milliseconds, 16 microseconds and 19 nanoseconds, which is common in Go, OpenTelemetry and database logs. On other pages a 19-digit number may also be read as a Snowflake ID; this page always reads it as time.</p><p>Dates in ISO 8601 (<code>2026-09-26T08:00:00Z</code>, with or without an offset) and email-style dates (<code>Fri, 25 Sep 2026 14:00:00 +0000</code>) are converted to Unix seconds and milliseconds. Dates without a time zone are read in your browser's time zone, and Decoder says so.</p></section>
         <section class="content-section"><h2>Questions</h2><h3>What is the Unix epoch?</h3><p>1 January 1970 00:00:00 UTC. A Unix timestamp counts the seconds (or smaller units) since then, ignoring leap seconds.</p><h3>Why does my timestamp land in 1970?</h3><p>It is probably in a larger unit than assumed, or has been truncated. Check the digit count: 10 digits are seconds, 13 milliseconds, 16 microseconds and 19 nanoseconds.</p></section>
-      </article>
+      </article></section>
     </main>
 
-    <footer>
-      <span>decoder.in · beta 0.4.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
-      <nav aria-label="Footer navigation">
-        <a href="/docs/">Documentation</a>
-        <a href="/privacy/">Privacy</a>
-        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
-        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
-      </nav>
+    <footer class="shell">
+      <div><a class="wordmark" href="/"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a><p>Technical data, made readable.<br />Built by <a href="https://swiss.software/">swiss.software</a>.</p></div>
+      <nav aria-label="Footer navigation"><a href="/docs/">Documentation</a><a href="/privacy/">Privacy</a><a href="https://github.com/gmdorg-max/decoder-in">Source ↗</a><a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a></nav>
+      <small>BETA 0.4.0 · RUNS IN YOUR BROWSER</small>
     </footer>
 
-    <script src="/tools.js?v=20260926-2"></script>
-    <script src="/protocols.js?v=20260926-2"></script>
-    <script src="/decoder.js?v=20260926-2"></script>
-    <script src="/examples.js?v=20260926-2"></script>
-    <script src="/app.js?v=20260926-2"></script>
+    <script src="/tools.js?v=20260926-3"></script>
+    <script src="/protocols.js?v=20260926-3"></script>
+    <script src="/decoder.js?v=20260926-3"></script>
+    <script src="/examples.js?v=20260926-3"></script>
+    <script src="/app.js?v=20260926-3"></script>
   </body>
 </html>

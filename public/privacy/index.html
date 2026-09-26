@@ -4,24 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="How decoder.in protects technical payloads and handles data." />
-    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="theme-color" content="#f6f3ed" />
     <link rel="canonical" href="https://decoder.in/privacy/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:title" content="Privacy — decoder.in" />
     <meta property="og:description" content="Your pasted payload stays in your browser. Learn what the site processes and what Cloudflare receives." />
     <meta property="og:image" content="https://decoder.in/og-card.png" />
     <title>Privacy — decoder.in</title>
-    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
+    <link rel="stylesheet" href="/styles.css?v=20260926-3" />
   </head>
   <body>
-    <header class="site-header">
+    <header class="site-header shell">
       <a class="wordmark" href="/" aria-label="decoder.in home"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a>
-      <div class="header-actions">
-        <nav aria-label="Primary navigation"><a href="/#tools">Tools</a><a href="/">Decoder</a><a href="/docs/">Docs</a></nav>
-        <div class="privacy-pill"><span></span> Local only</div>
-      </div>
+      <nav class="primary-nav" aria-label="Primary navigation"><a href="/#workspace">Inspector</a><a href="/#tools">All tools</a><a href="/docs/">Docs</a><a class="active" aria-current="page" href="/privacy/">Privacy</a></nav>
+      <span class="privacy-pill"><span class="status-dot"></span>Local only</span>
     </header>
-    <main>
+    <main class="shell">
       <article class="content-page">
         <p class="eyebrow">Privacy</p>
         <h1>Your payload<br /><em>stays yours.</em></h1>
@@ -61,6 +59,10 @@
         </section>
       </article>
     </main>
-    <footer><span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span><nav><a href="/">Decoder</a><a href="/docs/">Documentation</a><a href="https://github.com/gmdorg-max/decoder-in">Source</a></nav></footer>
+    <footer class="shell">
+      <div><a class="wordmark" href="/"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a><p>Technical data, made readable.<br />Built by <a href="https://swiss.software/">swiss.software</a>.</p></div>
+      <nav aria-label="Footer navigation"><a href="/docs/">Documentation</a><a href="/privacy/">Privacy</a><a href="https://github.com/gmdorg-max/decoder-in">Source ↗</a><a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a></nav>
+      <small>BETA 0.4.0 · RUNS IN YOUR BROWSER</small>
+    </footer>
   </body>
 </html>

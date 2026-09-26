@@ -12,7 +12,7 @@ const zlib = require("node:zlib");
 const ROOT = path.join(__dirname, "..");
 const PUBLIC = path.join(ROOT, "public");
 const VERSION = "0.4.0";
-const ASSET = "20260926-2";
+const ASSET = "20260926-3";
 const LASTMOD = "2026-09-26";
 const SITE = "https://decoder.in";
 
@@ -164,7 +164,7 @@ const PAGES = [
     description: "17 private developer tools in one box: JWT, OAuth/PKCE, SAML, passkeys, certificates, SSH keys, security and email headers, DNS/SPF, Base64, JSON, timestamps, UUIDs and protobuf. Decoded in your browser.",
     ogTitle: "decoder.in — Make encoded data readable",
     h1: ["Make encoded data", "readable."],
-    intro: "Paste a token, key, certificate, URL, header, record, ID, JSON or encoded string. Decoder identifies it and unwraps every layer in your browser. Or pick a tool above.",
+    intro: "Paste a token, key, certificate, URL, header, record, ID, JSON or encoded string. Decoder identifies it and unwraps every layer in your browser. Or pick a tool below.",
     placeholder: "Paste a token, certificate, request, headers, JSON, or encoded value…",
     chips: ["Tokens & identity", "Certificates & keys", "Web, mail & network", "Data & encodings"],
   },
@@ -547,13 +547,37 @@ const PAGES = [
 
 const link = (t, current, label) => `<a href="/${t.slug}/"${t.slug === current ? ' aria-current="page"' : ""}>${esc(label)}</a>`;
 
-/** Compact bar under the header: every tool visible without scrolling. */
-function toolBar(current) {
-  return GROUPS.map(([name, tools]) => `<span class="tool-group" aria-label="${esc(name)}">${tools.map((t) => link(t, current, t.short)).join("")}</span>`).join("");
+/** The grouped tool directory ("the tool library") on every page. */
+function toolDirectory(current) {
+  return GROUPS.map(([name, tools], i) => {
+    const id = `group-${i + 1}`;
+    const links = tools.map((t) => `<a href="/${t.slug}/"${t.slug === current ? ' aria-current="page"' : ""}>${esc(t.nav)} <span aria-hidden="true">→</span></a>`).join("");
+    return `<section class="tool-group" aria-labelledby="${id}"><div class="group-title"><span>0${i + 1} /</span><h3 id="${id}">${esc(name)}</h3></div><div class="group-links">${links}</div></section>`;
+  }).join("\n          ");
 }
 
-function toolsNav(current) {
-  return GROUPS.map(([name, tools]) => `<section><h3>${esc(name)}</h3>${tools.map((t) => link(t, current, t.nav)).join("")}</section>`).join("");
+/** Header shared by generated and static pages. local = the inspector lives on this page. */
+function siteHeader(active, local = true) {
+  const items = [
+    ["Inspector", local ? "#workspace" : "/#workspace", "inspector"],
+    ["All tools", local ? "#tools" : "/#tools", "tools"],
+    ["Docs", "/docs/", "docs"],
+    ["Privacy", "/privacy/", "privacy"],
+  ];
+  const nav = items.map(([label, href, key]) => `<a${key === active ? ' class="active" aria-current="page"' : ""} href="${href}">${label}</a>`).join("");
+  return `<header class="site-header shell">
+      <a class="wordmark" href="/" aria-label="decoder.in home"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a>
+      <nav class="primary-nav" aria-label="Primary navigation">${nav}</nav>
+      <span class="privacy-pill"><span class="status-dot"></span>Local only</span>
+    </header>`;
+}
+
+function siteFooter() {
+  return `<footer class="shell">
+      <div><a class="wordmark" href="/"><span class="wordmark-mark" aria-hidden="true">d/</span><span>decoder.in</span></a><p>Technical data, made readable.<br />Built by <a href="https://swiss.software/">swiss.software</a>.</p></div>
+      <nav aria-label="Footer navigation"><a href="/docs/">Documentation</a><a href="/privacy/">Privacy</a><a href="https://github.com/gmdorg-max/decoder-in">Source ↗</a><a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a></nav>
+      <small>BETA ${VERSION} · RUNS IN YOUR BROWSER</small>
+    </footer>`;
 }
 
 function sectionsHtml(page) {
@@ -562,10 +586,10 @@ function sectionsHtml(page) {
     `<section class="content-section"><h2>${esc(h)}</h2>${paragraphs.map((p) => `<p>${p}</p>`).join("")}</section>`).join("\n        ");
   const faq = page.faq ? `<section class="content-section"><h2>Questions</h2>${page.faq.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join("")}</section>` : "";
   return `
-      <article class="content-page tool-guide">
+      <section class="guide shell"><article class="content-page tool-guide">
         ${sections}
         ${faq}
-      </article>`;
+      </article></section>`;
 }
 
 function jsonLd(page, url) {
@@ -584,19 +608,17 @@ function jsonLd(page, url) {
 
 function render(page) {
   const url = `${SITE}/${page.slug ? `${page.slug}/` : ""}`;
+  const tool = TOOLS.find((t) => t.slug === page.slug);
+  const eyebrow = tool ? esc(tool.nav) : "Private technical payload inspector";
   const principles = page.slug ? "" : `
-      <section class="principles" aria-label="Product principles">
-        <article><span>01</span><h3>Automatic</h3><p>No dropdowns. Decoder recognizes common technical formats and nested layers.</p></article>
-        <article><span>02</span><h3>Private</h3><p>No uploads, accounts, analytics payloads, or server-side processing.</p></article>
-        <article><span>03</span><h3>Explicit</h3><p>Every transformation is shown so you can verify exactly what happened.</p></article>
-      </section>`;
+    <section class="principles" aria-labelledby="principles-title"><div class="shell principle-layout"><div><p class="section-kicker">How it works / 03</p><h2 id="principles-title">Clarity, without the upload.</h2></div><div class="principle-list"><article><span>01</span><div><h3>Automatic</h3><p>Decoder recognizes common formats and nested layers. Start with the data, not a dropdown.</p></div></article><article><span>02</span><div><h3>Private</h3><p>Inspection runs in your browser. No uploads, accounts or server-side processing.</p></div></article><article><span>03</span><div><h3>Explicit</h3><p>Each transformation is shown, so you can check how the result was reached.</p></div></article></div></div></section>`;
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="${esc(page.description)}" />
-    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="theme-color" content="#f6f3ed" />
     <meta name="application-name" content="decoder.in" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="${url}" />
@@ -616,107 +638,59 @@ function render(page) {
     <script type="application/ld+json">${jsonLd(page, url)}</script>
   </head>
   <body data-tool="${page.tool}">
-    <header class="site-header">
-      <a class="wordmark" href="/" aria-label="decoder.in home">
-        <span class="wordmark-mark" aria-hidden="true">d/</span>
-        <span>decoder.in</span>
-      </a>
-      <div class="header-actions">
-        <nav aria-label="Primary navigation">
-          <a href="#tools">All tools</a>
-          <a href="/docs/">Docs</a>
-          <a href="/privacy/">Privacy</a>
-        </nav>
-        <div class="privacy-pill"><span></span> Local only</div>
-      </div>
-    </header>
-    <nav class="tool-bar" aria-label="All tools">${toolBar(page.slug)}</nav>
+    <a class="skip-link" href="#workspace">Skip to inspector</a>
+    ${siteHeader("inspector")}
 
     <main>
-      <section class="hero">
-        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
-        <h1>${esc(page.h1[0])}<br /><em>${esc(page.h1[1])}</em></h1>
-        <p class="intro">${esc(page.intro)}</p>
+      <section class="hero shell" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> ${eyebrow} <span class="eyebrow-index">/ 01</span></p>
+          <h1 id="page-title">${esc(page.h1[0])}<br /><em>${esc(page.h1[1])}</em></h1>
+          <p class="intro">${esc(page.intro)}</p>
+          <div class="hero-tags" aria-label="Supported inspections">${page.chips.map((c) => `<span>${esc(c)}</span>`).join("")}</div>
+          <div class="hero-actions"><a class="button-primary" href="#payload">Start decoding <span aria-hidden="true">↗</span></a><a class="button-secondary" href="#tools">Browse all tools <span aria-hidden="true">↓</span></a></div>
+        </div>
+        <div class="hero-graphic" aria-hidden="true"><span class="graphic-label">INPUT → INSIGHT</span><span class="graphic-glyph">d<span>/</span></span><span class="graphic-foot"><span>01 / DETECT</span><span>02 / UNWRAP</span><span>03 / VERIFY</span></span></div>
       </section>
 
-      <div class="capability-strip" aria-label="Supported inspections">
-        ${page.chips.map((c) => `<span>${esc(c)}</span>`).join("\n        ")}
-      </div>
-
-      <section class="workspace" aria-label="Decoder workspace">
-        <div class="input-panel">
-          <div class="panel-heading">
-            <label for="payload">Input</label>
-            <div class="input-actions">
-              <button class="text-button" id="exampleButton" type="button">Try example</button>
-              <button class="text-button" id="clearButton" type="button">Clear</button>
+      <section class="work-section" id="workspace" aria-labelledby="work-title">
+        <div class="shell">
+          <div class="section-head"><div><p class="section-kicker">The workbench / 01</p><h2 id="work-title">Inspect your input</h2></div><p>Recognizes common formats automatically. No selection needed.</p></div>
+          <div class="workspace" aria-label="Decoder workspace">
+            <div class="input-panel">
+              <div class="panel-heading"><label for="payload"><span class="panel-number">01</span> Input</label><div class="input-actions"><button id="exampleButton" type="button">Try example <span aria-hidden="true">↗</span></button><button id="clearButton" type="button">Clear</button></div></div>
+              <textarea id="payload" spellcheck="false" autocomplete="off" placeholder="${esc(page.placeholder)}"></textarea>
+              <div class="panel-foot"><span>⌘ / Ctrl + V</span><span>Data stays in this tab <span class="tiny-dot"></span></span></div>
             </div>
-          </div>
-          <textarea
-            id="payload"
-            spellcheck="false"
-            autocomplete="off"
-            placeholder="${esc(page.placeholder)}"
-          ></textarea>
-          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
-        </div>
-
-        <div class="result-panel" id="resultPanel" aria-live="polite">
-          <div class="empty-state" id="emptyState">
-            <div class="radar" aria-hidden="true"><span></span></div>
-            <h2>Waiting for a signal</h2>
-            <p>Decoder will inspect the structure, not guess at its meaning.</p>
-          </div>
-
-          <div class="results" id="results" hidden>
-            <div class="result-topline">
-              <div>
-                <p class="result-label">Detected as</p>
-                <h2 id="detectedType">Unknown</h2>
+            <div class="result-panel" id="resultPanel" aria-live="polite">
+              <div class="panel-heading"><span><span class="panel-number">02</span> Analysis</span><span class="panel-meta">Local output</span></div>
+              <div class="empty-state" id="emptyState"><div class="empty-symbol" aria-hidden="true"><span>[</span> _ <span>]</span></div><h3>Waiting for input.</h3><p>Paste something in the left panel, or load an example to see the decoder at work.</p></div>
+              <div class="results" id="results" hidden>
+                <div class="result-topline"><div><p class="result-label">Detected as</p><h3 id="detectedType">Unknown</h3></div><button class="copy-button" id="copyButton" type="button">Copy output</button></div>
+                <div class="confidence-row"><span id="confidenceText">High confidence</span><div class="confidence-track"><span id="confidenceBar"></span></div></div>
+                <div id="notices"></div>
+                <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check"><label for="checkKey">PKCE: check the code_verifier</label><textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea><p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p></section>
+                <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature"><label for="verifyKey">Verify signature</label><textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea><p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p></section>
+                <div class="layers" id="layers"></div>
               </div>
-              <button class="copy-button" id="copyButton" type="button">Copy output</button>
             </div>
-
-            <div class="confidence-row">
-              <span id="confidenceText">High confidence</span>
-              <div class="confidence-track"><span id="confidenceBar"></span></div>
-            </div>
-
-            <div id="notices"></div>
-            <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check">
-              <label for="checkKey">PKCE: check the code_verifier</label>
-              <textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea>
-              <p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p>
-            </section>
-            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
-              <label for="verifyKey">Verify signature</label>
-              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
-              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
-            </section>
-            <div class="layers" id="layers"></div>
           </div>
+          <p class="workspace-note"><span class="note-icon">↳</span> Decoding is not verification. When a format supports verification, check the result against a trusted key.</p>${page.hint ? `
+          <p class="workspace-note"><span class="note-icon">↳</span> ${page.hint}</p>` : ""}
         </div>
       </section>
-${page.hint ? `
-      <p class="tool-hint">${page.hint}</p>
-` : ""}
-      <nav class="tool-links" id="tools" aria-label="Decoder tools">
-        <h2>All tools</h2>
-        <div>${toolsNav(page.slug)}</div>
-      </nav>
+
+      <section class="tools-section shell" id="tools" aria-labelledby="tools-title">
+        <div class="section-head tools-head"><div><p class="section-kicker">The tool library / 02</p><h2 id="tools-title">Go straight to the right tool.</h2></div><p>Focused inspectors for specific formats. Every one runs in your browser.</p></div>
+        <div class="tool-directory">
+          ${toolDirectory(page.slug)}
+        </div>
+      </section>
 ${principles}
 ${sectionsHtml(page)}
     </main>
 
-    <footer>
-      <span>decoder.in · beta ${VERSION} · built by <a href="https://swiss.software/">swiss.software</a></span>
-      <nav aria-label="Footer navigation">
-        <a href="/docs/">Documentation</a>
-        <a href="/privacy/">Privacy</a>
-        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
-        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
-      </nav>
-    </footer>
+    ${siteFooter()}
 
     <script src="/tools.js?v=${ASSET}"></script>
     <script src="/protocols.js?v=${ASSET}"></script>
@@ -773,4 +747,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { PAGES, TOOLS, EXAMPLES, DEMO_SECRET };
+module.exports = { PAGES, TOOLS, EXAMPLES, DEMO_SECRET, siteHeader, siteFooter };
