@@ -71,6 +71,10 @@ const EXAMPLES = {
     "Message-ID: <20260925140209.1@invoices-portal.example>",
   ].join("\n")],
 };
+// gzip writes the producing OS into byte 9 of its header (3 = Unix, 11 = Windows),
+// which would make the generated examples differ between machines. Pin it.
+const gzipStable = (data) => { const out = zlib.gzipSync(data); out[9] = 3; return out; };
+
 // Deterministic bytes for example payloads that are random in real life.
 const pseudo = (seed, n) => {
   const out = [];
@@ -107,7 +111,7 @@ Object.assign(EXAMPLES, {
     ] }).toString("base64url"),
     "v=DMARC1; p=none; rua=mailto:dmarc@example.com; pct=100",
   ],
-  base64: ["eyJ1c2VyIjoiYWRhIiwicm9sZXMiOlsiYWRtaW4iLCJvcHMiXSwidGhlbWUiOiJkYXJrIn0=", "SGVsbG8gZnJvbSBkZWNvZGVyLmluIPCfkYs=", zlib.gzipSync(JSON.stringify({ event: "login", user: "ada", ok: true })).toString("base64")],
+  base64: ["eyJ1c2VyIjoiYWRhIiwicm9sZXMiOlsiYWRtaW4iLCJvcHMiXSwidGhlbWUiOiJkYXJrIn0=", "SGVsbG8gZnJvbSBkZWNvZGVyLmluIPCfkYs=", gzipStable(JSON.stringify({ event: "login", user: "ada", ok: true })).toString("base64")],
   url: ["https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dcaf%C3%A9%2520cr%C3%A8me%26lang%3Dfr", "https://shop.example.com/cart?item=42&item=43&coupon=SAVE%2010&ref=newsletter#checkout"],
   json: ['{"user":"ada","roles":["admin","ops",],"active":true,}', '{"id":42,"name":"Ada","tags":["math","code"],"address":{"city":"Geneva","zip":"1201"}}'],
   timestamp: ["1790380800", "1790380800123456789", "2026-09-26T08:00:00+02:00"],
@@ -515,7 +519,7 @@ const PAGES = [
     ],
     faq: [
       ["What is the Unix epoch?", "1 January 1970 00:00:00 UTC. A Unix timestamp counts the seconds (or smaller units) since then, ignoring leap seconds."],
-      ["Why does my timestamp land in 1970?", "It is probably in a larger unit than assumed, or has been truncated. Check the digit count against the list above."],
+      ["Why does my timestamp land in 1970?", "It is probably in a larger unit than assumed, or has been truncated. Check the digit count: 10 digits are seconds, 13 milliseconds, 16 microseconds and 19 nanoseconds."],
     ],
   },
   {

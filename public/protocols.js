@@ -241,7 +241,8 @@
 
   /** OpenSSH private key files carry the public key in clear; show only that. */
   function analyzeOpensshPrivate(text, now = Date.now()) {
-    const m = text.match(/-----BEGIN OPENSSH PRIVATE KEY-----([\s\S]*?)-----END OPENSSH PRIVATE KEY-----/);
+    // The END marker is optional: a truncated paste is still a private key and must never reach the generic decoders.
+    const m = text.match(/-----BEGIN OPENSSH PRIVATE KEY-----([\s\S]*?)(?:-----END OPENSSH PRIVATE KEY-----|$)/);
     if (!m) return null;
     const notice = "This is a private key. Only its public half was read; the secret part was not decoded. If it was pasted anywhere else, replace it.";
     try {
@@ -1016,35 +1017,42 @@
   const u32 = (b, p) => ((b[p] << 24) | (b[p + 1] << 16) | (b[p + 2] << 8) | b[p + 3]) >>> 0;
   const dnsTime = (t) => new Date(t * 1000).toISOString().replace(/\.000Z$/, "Z");
 
+  // Smallest valid rdata per type: fixed fields plus at least a one-byte name where one follows.
+  const RDATA_MIN = { 2: 1, 5: 1, 12: 1, 15: 3, 33: 7, 6: 22, 43: 4, 48: 4, 46: 19, 257: 2, 64: 3, 65: 3 };
+
   function rdataText(b, type, pos, len) {
     const end = pos + len;
     const r = b.subarray(pos, end);
+    if (RDATA_MIN[type] && len < RDATA_MIN[type]) throw new Error(`${DNS_TYPES[type]} record too short`);
+    // A name inside a record must end inside it, or the record is reading the next one's bytes.
+    const name = (p) => { const [n, next] = dnsName(b, p); if (next > end) throw new Error("Name runs past the record"); return [n, next]; };
     switch (type) {
       case 1: if (len !== 4) throw new Error("Bad A record"); return Array.from(r).join(".");
       case 28: if (len !== 16) throw new Error("Bad AAAA record"); return hex(r).match(/.{4}/g).join(":").replace(/(^|:)0{1,3}/g, "$1").replace(/(^|:)(0:)+/, "::").replace(/::+/, "::");
-      case 2: case 5: case 12: return dnsName(b, pos)[0];
-      case 15: return `${u16(b, pos)} ${dnsName(b, pos + 2)[0]}`;
+      case 2: case 5: case 12: return name(pos)[0];
+      case 15: return `${u16(b, pos)} ${name(pos + 2)[0]}`;
       case 16: case 99: {
         const strings = [];
         let p = pos;
         while (p < end) { const n = b[p]; if (p + 1 + n > end) throw new Error("Bad TXT string"); strings.push(utf8(b.subarray(p + 1, p + 1 + n))); p += 1 + n; }
         return strings.map((s) => JSON.stringify(s)).join(" ");
       }
-      case 33: return `${u16(b, pos)} ${u16(b, pos + 2)} ${u16(b, pos + 4)} ${dnsName(b, pos + 6)[0]}`;
+      case 33: return `${u16(b, pos)} ${u16(b, pos + 2)} ${u16(b, pos + 4)} ${name(pos + 6)[0]}`;
       case 6: {
-        const [mname, p1] = dnsName(b, pos);
-        const [rname, p2] = dnsName(b, p1);
+        const [mname, p1] = name(pos);
+        const [rname, p2] = name(p1);
+        if (p2 + 20 > end) throw new Error("SOA record too short");
         return `${mname} ${rname} serial ${u32(b, p2)} refresh ${u32(b, p2 + 4)} retry ${u32(b, p2 + 8)} expire ${u32(b, p2 + 12)} minimum ${u32(b, p2 + 16)}`;
       }
-      case 257: { const tagLen = r[1]; return `${r[0]} ${utf8(r.subarray(2, 2 + tagLen))} ${JSON.stringify(utf8(r.subarray(2 + tagLen)))}`; }
+      case 257: { const tagLen = r[1]; if (2 + tagLen > len) throw new Error("CAA record too short"); return `${r[0]} ${utf8(r.subarray(2, 2 + tagLen))} ${JSON.stringify(utf8(r.subarray(2 + tagLen)))}`; }
       case 43: return `key tag ${u16(r, 0)} · ${DNSSEC_ALGS[r[2]] || `alg ${r[2]}`} · digest ${({ 1: "SHA-1", 2: "SHA-256", 4: "SHA-384" })[r[3]] || r[3]} ${hex(r.subarray(4))}`;
       case 48: return `flags ${u16(r, 0)}${u16(r, 0) & 1 ? " (KSK)" : " (ZSK)"} · protocol ${r[2]} · ${DNSSEC_ALGS[r[3]] || `alg ${r[3]}`} · key ${bytesToBase64(r.subarray(4)).slice(0, 44)}…`;
       case 46: {
-        const [signer, p] = dnsName(b, pos + 18);
+        const [signer, p] = name(pos + 18);
         return `covers ${DNS_TYPES[u16(r, 0)] || u16(r, 0)} · ${DNSSEC_ALGS[r[2]] || `alg ${r[2]}`} · labels ${r[3]} · ttl ${u32(r, 4)} · valid ${dnsTime(u32(r, 12))} → ${dnsTime(u32(r, 8))} · key tag ${u16(r, 16)} · signer ${signer} · ${end - p} byte signature`;
       }
       case 64: case 65: {
-        const [target] = dnsName(b, pos + 2);
+        const [target] = name(pos + 2);
         return `priority ${u16(b, pos)} target ${target}`;
       }
       default: return `\\# ${len} ${hex(r)}`;
@@ -1194,7 +1202,9 @@
           else if (size < 2048) add("warn", "Key size", `${size}-bit works but 2048-bit is the recommended minimum.`);
           else add("pass", "Key size", `${size}-bit.`);
         } catch { add("fail", "p", "The public key is not valid Base64 SubjectPublicKeyInfo."); }
-      } else info.Key = `${base64ToBytes(tags.p).length * 8}-bit Ed25519`;
+      } else {
+        try { info.Key = `${base64ToBytes(tags.p).length * 8}-bit Ed25519`; } catch { add("fail", "p", "The public key is not valid Base64."); }
+      }
       if (tags.t) info.Flags = tags.t.split(":").map((f) => (f === "y" ? "y (testing: receivers may ignore failures)" : f === "s" ? "s (no subdomains)" : f)).join(", ");
       if (tags.h) info["Hash algorithms"] = tags.h;
       if (/y/.test(tags.t || "")) add("info", "t", "Testing mode is on.");

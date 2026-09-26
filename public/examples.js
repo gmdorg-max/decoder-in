@@ -53,7 +53,7 @@ globalThis.DecoderExamples = {
   "base64": [
     "eyJ1c2VyIjoiYWRhIiwicm9sZXMiOlsiYWRtaW4iLCJvcHMiXSwidGhlbWUiOiJkYXJrIn0=",
     "SGVsbG8gZnJvbSBkZWNvZGVyLmluIPCfkYs=",
-    "H4sIAAAAAAAACqtWSi1LzStRslLKyU/PzFPSUSotTi1SslJKTElU0lHKz1ayKikqTa0FAK4BcGkoAAAA"
+    "H4sIAAAAAAAAA6tWSi1LzStRslLKyU/PzFPSUSotTi1SslJKTElU0lHKz1ayKikqTa0FAK4BcGkoAAAA"
   ],
   "url": [
     "https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dcaf%C3%A9%2520cr%C3%A8me%26lang%3Dfr",
@@ -85,7 +85,7 @@ globalThis.DecoderExamples = {
     "eyJhbGciOiJSU0EtT0FFUC0yNTYiLCJlbmMiOiJBMjU2R0NNIiwia2lkIjoiZW5jLTIwMjYtMDkiLCJjdHkiOiJKV1QifQ.AbOq6lMmWgDSQQnTTbdvpDfARCLwL_Ze9Xn_7D5iQWwEgmWFRibJ-Ly0uLbBE12vfo6UeUJ7ooNnvtQ3blyjLROLSIv9HT45zui-bNKy7FloUXV-lz-jHU6_SZR3xVqYLQ60plvgISs757Aa9QqPObe-4cfFhmFCfTuIptgfzF4DF3zUmBUCck1Wix7MMYYBxbwprkG8W_DhPwjvXWwDADIndYmk5yaj-R4nZ69hjPySD7O_wH7ebyN6BWN4KFkRnk81uX5S9lMK6EimzhN4HNKQ2CvOQqZLye7SRsmEa2MlfUsTqsPHIXDRQkEgX5egLCKfCAF0BQe55MQdp2jbKg.V-Egq9nRsMDn8djB.86Tay80EI3mY7BfCj8bc_Oo6afhK-7Fwg753-2MkkKal9vmFNTVeIkQemO3TP3l7I1bmu6igYa2DpUpIQHfbKcsE9FyTB3RpXVr2mSLG3yIpnxt9hgaB5OSsRGCvhOkJh_bxi10VKLuuRZxN6shR-0SUv6upNWEpiUzxZnaLKiXf6_oYvdGF0YI7CKkZTDpyFxJAc7haUA_djsKQx3T8KdV8p3yzPGfn-TMvqaf6-v3N_R8jzEf59mA4WD023lYjPeh6v_1pTaarMkvBbSt37PH4oy_ukVjgxuwBXgHZDnW6tPUxPZ1PT8m8T0UbFkbGc-bKfhyNg2pk72nLu8vel6xjG0f73e0EOIUVHkBwu-DdQRD_40le2EV6JENqNafzuVq4y3DdvqtIbkNR6l-nrkNJoVG9vZUymzlgGkb5pdBKva-z-X6gyx1FO6Ox312qxVzq2bHIRNsVVFQWUktzLjinIjnuB84HdNM4jzTMnBlWqUnoRFUiNwm6nvtLOiPowpoaxmedAPeygwmlel5UrkiaK6OOIMbcAvE4ZA.hDuoc2V3ijSLN_GTUJot-Q",
     "CJYBEgxBZGEgTG92ZWxhY2UaEggBEgVhZG1pbhIHb24tY2FsbCEAAAAAAOBYQCiAltzVBg==",
     "01929c3a-7f3e-7b1a-9c4d-5e6f7a8b9c0d",
-    "H4sIAAAAAAAACqtWSi1LzStRslLKyU/PzFPSUSotTi1SslJKTElU0lHKz1ayKikqTa0FAK4BcGkoAAAA",
+    "H4sIAAAAAAAAA6tWSi1LzStRslLKyU/PzFPSUSotTi1SslJKTElU0lHKz1ayKikqTa0FAK4BcGkoAAAA",
     "2026-09-26T08:00:00+02:00",
     "curl 'https://api.example.com/users?active=true&role=admin' -H 'Accept: application/json' -H 'Cookie: session=demo; theme=dark' -d '{\"name\":\"Ada\"}'",
     "{\"ok\":true,\"items\":[1,2,],}"

@@ -278,6 +278,36 @@ const layer = (r, prefix) => r.layers.find((l) => l.type.startsWith(prefix));
     assert.equal(accepted, 0);
   });
 
+  // ------------------------------------------------- review fixes (PR #2)
+  await test("truncated private keys never reach the generic decoders", () => {
+    const openssh = ssh("ed25519.private").split("\n").slice(0, 4).join("\n");
+    const r = analyze(openssh);
+    assert.equal(r.type, "OpenSSH private key");
+    assert.ok(!JSON.stringify(r.layers).includes(openssh.split("\n")[2]));
+    const pem = fs.readFileSync(path.join(__dirname, "fixtures", "ec-private.pem"), "utf8").split("\n").slice(0, 3).join("\n");
+    const p = analyze(pem);
+    assert.equal(p.type, "Private key");
+    assert.ok(!JSON.stringify(p.layers).includes(pem.split("\n")[1]));
+  });
+
+  await test("malformed DKIM and DNS records fail cleanly", () => {
+    const dkim = analyze("v=DKIM1; k=ed25519; p=!!!");
+    assert.equal(dkim.type, "DKIM record");
+    assert.match(layer(dkim, "DKIM checks").value["✗ p"], /not valid Base64/);
+    // An MX record with rdlength 0 followed by an A record: must be rejected, not read from the next record.
+    const good = E.dnsMessage({ response: true, question: ["example.com", "MX"], answers: [["example.com", "MX", 60, [10, "mx.example.com"]], ["example.com", "A", 60, "192.0.2.1"]] });
+    const mxLen = good.indexOf(Buffer.from([0x00, 0x0f, 0x00, 0x01, 0x00, 0x00, 0x00, 0x3c])) + 8;
+    const bad = Buffer.from(good); bad.writeUInt16BE(0, mxLen);
+    assert.equal(P.analyzeDns(bad), null);
+    assert.equal(P.analyzeDns(good).type, "DNS response (wire format)");
+  });
+
+  await test("gzip examples are identical on every OS", () => {
+    const { EXAMPLES } = require("../build/pages.js");
+    const gz = Buffer.from(EXAMPLES.base64[2], "base64");
+    assert.equal(gz[9], 3, "gzip OS byte must be pinned to Unix");
+  });
+
   // ---------------------------------------------------------- regressions
   await test("batch 1 formats still win on their inputs", () => {
     assert.equal(analyze("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.c2ln").type, "JSON Web Token");
