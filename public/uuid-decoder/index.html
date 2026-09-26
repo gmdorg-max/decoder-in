@@ -20,7 +20,7 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>UUID decoder — versions, timestamps, ULID, ObjectId and Snowflake — decoder.in</title>
-    <link rel="stylesheet" href="/styles.css?v=20260926-1" />
+    <link rel="stylesheet" href="/styles.css?v=20260926-2" />
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"UUID decoder — versions, timestamps, ULID, ObjectId and Snowflake","url":"https://decoder.in/uuid-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a v1 UUID identify a computer?","acceptedAnswer":{"@type":"Answer","text":"Often, yes. Unless the generator randomised the node field, the last 12 hex digits are the network card's MAC address. Decoder tells you which case applies."}},{"@type":"Question","name":"Which version should I use for database keys?","acceptedAnswer":{"@type":"Answer","text":"UUID v7: it is unique like v4 but ordered by time, which keeps database indexes compact."}}]}]}</script>
   </head>
   <body data-tool="ids">
@@ -31,13 +31,14 @@
       </a>
       <div class="header-actions">
         <nav aria-label="Primary navigation">
-          <a href="/#tools">Tools</a>
+          <a href="#tools">All tools</a>
           <a href="/docs/">Docs</a>
           <a href="/privacy/">Privacy</a>
         </nav>
         <div class="privacy-pill"><span></span> Local only</div>
       </div>
     </header>
+    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/" aria-current="page">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
 
     <main>
       <section class="hero">
@@ -93,6 +94,11 @@
             </div>
 
             <div id="notices"></div>
+            <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check">
+              <label for="checkKey">PKCE: check the code_verifier</label>
+              <textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea>
+              <p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p>
+            </section>
             <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
               <label for="verifyKey">Verify signature</label>
               <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
@@ -104,9 +110,10 @@
       </section>
 
       <nav class="tool-links" id="tools" aria-label="Decoder tools">
-        <h2>Tools</h2>
-        <div><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/certificate-decoder/">Certificate decoder</a><a href="/http-security-headers/">Security headers check</a><a href="/saml-decoder/">SAML decoder</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/uuid-decoder/" aria-current="page">UUID &amp; ID decoder</a></div>
+        <h2>All tools</h2>
+        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/" aria-current="page">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
       </nav>
+
 
       <article class="content-page tool-guide">
         <section class="content-section"><h2>Which IDs carry a timestamp</h2><p><strong>UUID v1 and v6</strong> hold a 100-nanosecond timestamp and, in v1, often the MAC address of the machine that made them. <strong>UUID v7</strong> and <strong>ULID</strong> start with a millisecond Unix timestamp, so they sort by creation time.</p><p><strong>MongoDB ObjectIds</strong> begin with the creation second. <strong>Snowflake IDs</strong> (X/Twitter, Discord, Instagram) hold milliseconds since the service's own epoch, so Decoder shows a reading for each plausible service.</p><p><strong>UUID v4</strong> is random and <strong>v3/v5</strong> are hashes of a name: they contain no time at all.</p></section>
@@ -115,7 +122,7 @@
     </main>
 
     <footer>
-      <span>decoder.in · beta 0.3.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <span>decoder.in · beta 0.4.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
       <nav aria-label="Footer navigation">
         <a href="/docs/">Documentation</a>
         <a href="/privacy/">Privacy</a>
@@ -124,9 +131,10 @@
       </nav>
     </footer>
 
-    <script src="/tools.js?v=20260926-1"></script>
-    <script src="/decoder.js?v=20260926-1"></script>
-    <script src="/examples.js?v=20260926-1"></script>
-    <script src="/app.js?v=20260926-1"></script>
+    <script src="/tools.js?v=20260926-2"></script>
+    <script src="/protocols.js?v=20260926-2"></script>
+    <script src="/decoder.js?v=20260926-2"></script>
+    <script src="/examples.js?v=20260926-2"></script>
+    <script src="/app.js?v=20260926-2"></script>
   </body>
 </html>

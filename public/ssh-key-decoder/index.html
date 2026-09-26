@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Paste an SSH public key, authorized_keys or known_hosts line, or an SSH certificate: type, bits, SHA256 and MD5 fingerprints, principals and validity. Runs in your browser." />
+    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="application-name" content="decoder.in" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://decoder.in/ssh-key-decoder/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="decoder.in" />
+    <meta property="og:title" content="SSH key inspector — fingerprints, key size and certificates — decoder.in" />
+    <meta property="og:description" content="Paste an SSH public key, authorized_keys or known_hosts line, or an SSH certificate: type, bits, SHA256 and MD5 fingerprints, principals and validity. Runs in your browser." />
+    <meta property="og:url" content="https://decoder.in/ssh-key-decoder/" />
+    <meta property="og:image" content="https://decoder.in/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>SSH key inspector — fingerprints, key size and certificates — decoder.in</title>
+    <link rel="stylesheet" href="/styles.css?v=20260926-2" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SSH key inspector — fingerprints, key size and certificates","url":"https://decoder.in/ssh-key-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do SHA256 and MD5 fingerprints differ?","acceptedAnswer":{"@type":"Answer","text":"They are two formats for the same key. OpenSSH shows SHA256 since version 6.8; older servers, panels and cloud consoles still show the MD5 colon format."}},{"@type":"Question","name":"Which key type should I use?","acceptedAnswer":{"@type":"Answer","text":"Ed25519 for new keys. Use RSA with at least 3072 bits only where Ed25519 is not supported."}}]}]}</script>
+  </head>
+  <body data-tool="ssh">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="decoder.in home">
+        <span class="wordmark-mark" aria-hidden="true">d/</span>
+        <span>decoder.in</span>
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Primary navigation">
+          <a href="#tools">All tools</a>
+          <a href="/docs/">Docs</a>
+          <a href="/privacy/">Privacy</a>
+        </nav>
+        <div class="privacy-pill"><span></span> Local only</div>
+      </div>
+    </header>
+    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/" aria-current="page">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
+        <h1>Inspect SSH<br /><em>keys.</em></h1>
+        <p class="intro">Paste a public key, a line from authorized_keys or known_hosts, or an OpenSSH certificate. Decoder shows the key type and strength and the fingerprints ssh-keygen would print.</p>
+      </section>
+
+      <div class="capability-strip" aria-label="Supported inspections">
+        <span>Ed25519 · RSA · ECDSA</span>
+        <span>SHA256 &amp; MD5 fingerprints</span>
+        <span>authorized_keys options</span>
+        <span>SSH certificates</span>
+      </div>
+
+      <section class="workspace" aria-label="Decoder workspace">
+        <div class="input-panel">
+          <div class="panel-heading">
+            <label for="payload">Input</label>
+            <div class="input-actions">
+              <button class="text-button" id="exampleButton" type="button">Try example</button>
+              <button class="text-button" id="clearButton" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="payload"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Paste ssh-ed25519 AAAA… or an authorized_keys / known_hosts line…"
+          ></textarea>
+          <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
+        </div>
+
+        <div class="result-panel" id="resultPanel" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Waiting for a signal</h2>
+            <p>Decoder will inspect the structure, not guess at its meaning.</p>
+          </div>
+
+          <div class="results" id="results" hidden>
+            <div class="result-topline">
+              <div>
+                <p class="result-label">Detected as</p>
+                <h2 id="detectedType">Unknown</h2>
+              </div>
+              <button class="copy-button" id="copyButton" type="button">Copy output</button>
+            </div>
+
+            <div class="confidence-row">
+              <span id="confidenceText">High confidence</span>
+              <div class="confidence-track"><span id="confidenceBar"></span></div>
+            </div>
+
+            <div id="notices"></div>
+            <section class="verify-panel" id="checkPanel" hidden aria-label="PKCE check">
+              <label for="checkKey">PKCE: check the code_verifier</label>
+              <textarea id="checkKey" spellcheck="false" autocomplete="off" placeholder="code_verifier (43–128 characters)"></textarea>
+              <p class="verify-result" id="checkResult">Paste the code_verifier to confirm it matches the code_challenge.</p>
+            </section>
+            <section class="verify-panel" id="verifyPanel" hidden aria-label="Verify signature">
+              <label for="verifyKey">Verify signature</label>
+              <textarea id="verifyKey" spellcheck="false" autocomplete="off" placeholder="Secret (HS256…), PEM public key, certificate, JWK or JWKS"></textarea>
+              <p class="verify-result" id="verifyResult">Paste a key to check the signature. It stays in this tab.</p>
+            </section>
+            <div class="layers" id="layers"></div>
+          </div>
+        </div>
+      </section>
+
+      <p class="tool-hint">The fingerprints match <code>ssh-keygen -lf key.pub</code> and <code>ssh-keygen -E md5 -lf key.pub</code>, so you can compare them with what a server shows on first connect.</p>
+
+      <nav class="tool-links" id="tools" aria-label="Decoder tools">
+        <h2>All tools</h2>
+        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/" aria-current="page">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
+      </nav>
+
+
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>What it reads</h2><p><strong>Public keys</strong>: ssh-ed25519, ssh-rsa, ecdsa-sha2-nistp256/384/521, security-key (sk-) keys and DSA. RSA keys under 2048 bits and DSA keys are flagged.</p><p><strong>authorized_keys</strong> lines with options such as <code>command=</code>, <code>from=</code> and <code>no-pty</code>, and <strong>known_hosts</strong> lines, including hashed host names.</p><p><strong>OpenSSH certificates</strong>: user or host, key ID, principals, validity window, critical options, extensions and the signing CA's fingerprint.</p></section>
+        <section class="content-section"><h2>Private keys</h2><p>If an <code>OPENSSH PRIVATE KEY</code> is pasted, Decoder reads only the public half stored in clear inside it and tells you whether the file has a passphrase. The secret part is never decoded. A private key pasted anywhere else should be replaced.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Why do SHA256 and MD5 fingerprints differ?</h3><p>They are two formats for the same key. OpenSSH shows SHA256 since version 6.8; older servers, panels and cloud consoles still show the MD5 colon format.</p><h3>Which key type should I use?</h3><p>Ed25519 for new keys. Use RSA with at least 3072 bits only where Ed25519 is not supported.</p></section>
+      </article>
+    </main>
+
+    <footer>
+      <span>decoder.in · beta 0.4.0 · built by <a href="https://swiss.software/">swiss.software</a></span>
+      <nav aria-label="Footer navigation">
+        <a href="/docs/">Documentation</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/gmdorg-max/decoder-in">Source</a>
+        <a href="mailto:hello@swiss.software?subject=decoder.in%20feedback">Send feedback</a>
+      </nav>
+    </footer>
+
+    <script src="/tools.js?v=20260926-2"></script>
+    <script src="/protocols.js?v=20260926-2"></script>
+    <script src="/decoder.js?v=20260926-2"></script>
+    <script src="/examples.js?v=20260926-2"></script>
+    <script src="/app.js?v=20260926-2"></script>
+  </body>
+</html>

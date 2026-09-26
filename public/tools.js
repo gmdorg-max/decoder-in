@@ -599,21 +599,24 @@
   }
 
   /** Certificates, chains, CSRs and public keys pasted as PEM (or a single DER as Base64). */
+  const privateKeyResult = (label) => ({
+    type: "Private key", confidence: 99, output: "",
+    layers: [{ type: "Private key", detail: "Not decoded", value: { Format: label, Contents: "Not shown or analysed" }, claims: true }],
+    notices: ["This is a private key. Decoder does not read it. It never left this tab, but if it was pasted anywhere else, treat it as compromised and replace it."],
+  });
+
   function analyzePem(text, now = Date.now()) {
     const blocks = pemBlocks(text);
+    // A private key with its END line missing must still stop here, never reach the Base64 decoder.
+    const truncatedPrivate = !blocks.length && text.match(/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/);
+    if (truncatedPrivate) return privateKeyResult(truncatedPrivate[1]);
     if (!blocks.length) return null;
     const layers = [];
     const notices = [];
     const certs = [];
     let type = null;
     for (const block of blocks) {
-      if (/PRIVATE KEY/.test(block.label)) {
-        return {
-          type: "Private key", confidence: 99, output: "",
-          layers: [{ type: "Private key", detail: "Not decoded", value: { Format: block.label, Contents: "Not shown or analysed" }, claims: true }],
-          notices: ["This is a private key. Decoder does not read it. It never left this tab, but if it was pasted anywhere else, treat it as compromised and replace it."],
-        };
-      }
+      if (/PRIVATE KEY/.test(block.label)) return privateKeyResult(block.label);
       if (!block.der) { notices.push(`The ${block.label} block is not valid Base64.`); continue; }
       try {
         if (block.label === "CERTIFICATE" || block.label === "TRUSTED CERTIFICATE") certs.push(parseCertificate(block.der, now));
@@ -939,13 +942,18 @@
       }
     }
 
-    if (/^\d{15,20}$/.test(value) && BigInt(value) < 2n ** 63n) {
+    // 16 digits is read as a microsecond timestamp instead.
+    if (/^\d{15,20}$/.test(value) && value.length !== 16 && BigInt(value) < 2n ** 63n) {
       const id = BigInt(value);
       const epochs = [["Twitter / X", 1288834974657], ["Discord", 1420070400000], ["Instagram", 1314220021721]];
       const readings = {};
       for (const [service, epoch] of epochs) {
         const ms = Number(id >> 22n) + epoch;
         if (plausible(ms, now) && ms > epoch) readings[`If ${service}`] = new Date(ms).toISOString();
+      }
+      if (value.length === 19) {
+        const nsMs = Number(id / 1000000n);
+        if (plausible(nsMs, now) && nsMs > Date.UTC(2000, 0, 1)) readings["If a nanosecond timestamp"] = new Date(nsMs).toISOString();
       }
       if (Object.keys(readings).length) {
         readings.Sequence = String(Number(id & 0xfffn));

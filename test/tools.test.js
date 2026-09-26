@@ -390,7 +390,7 @@ async function test(name, fn) {
   await test("requiring the page generator writes nothing", () => {
     const before = fs.statSync(path.join(__dirname, "..", "public", "index.html")).mtimeMs;
     const pages = require("../build/pages.js");
-    assert.ok(Array.isArray(pages.PAGES) && pages.PAGES.length === 7);
+    assert.ok(Array.isArray(pages.PAGES) && pages.PAGES.length === pages.TOOLS.length + 1);
     assert.equal(fs.statSync(path.join(__dirname, "..", "public", "index.html")).mtimeMs, before);
   });
 

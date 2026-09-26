@@ -6,6 +6,7 @@
   "use strict";
 
   const Tools = typeof module === "object" && typeof require === "function" ? require("./tools.js") : globalThis.DecoderTools;
+  const Proto = typeof module === "object" && typeof require === "function" ? require("./protocols.js") : globalThis.DecoderProtocols;
   const MAX_LAYERS = 6;
 
   function prettify(value) {
@@ -33,12 +34,44 @@
     try { return JSON.parse(value); } catch { return null; }
   }
 
-  function timestampInfo(value) {
-    if (!/^\d{10}(\d{3})?$/.test(value)) return null;
-    const milliseconds = value.length === 10 ? Number(value) * 1000 : Number(value);
+  const TIMESTAMP_UNITS = { 10: ["Seconds", 1000n, 1n], 13: ["Milliseconds", 1n, 1n], 16: ["Microseconds", 1n, 1000n], 19: ["Nanoseconds", 1n, 1000000n] };
+
+  function relativeTime(ms, now = Date.now()) {
+    const delta = ms - now;
+    if (Math.abs(delta) < 1000) return "now";
+    return delta < 0 ? `${formatDuration(delta)} ago` : `in ${formatDuration(delta)}`;
+  }
+
+  function timestampInfo(value, now = Date.now()) {
+    if (!/^\d+$/.test(value) || !TIMESTAMP_UNITS[value.length]) return null;
+    const [unit, multiply, divide] = TIMESTAMP_UNITS[value.length];
+    const milliseconds = Number((BigInt(value) * multiply) / divide);
     const date = new Date(milliseconds);
     if (Number.isNaN(date.getTime()) || date.getUTCFullYear() < 2000 || date.getUTCFullYear() > 2200) return null;
-    return { original: value, iso: date.toISOString(), local: date.toLocaleString() };
+    return {
+      original: value, unit, iso: date.toISOString(), local: date.toLocaleString(),
+      relative: relativeTime(milliseconds, now), "Unix seconds": String(Math.floor(milliseconds / 1000)),
+    };
+  }
+
+  const ISO_DATE = /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/;
+  const MAIL_DATE = /^(?:[A-Z][a-z]{2},\s*)?\d{1,2}\s+[A-Z][a-z]{2}\s+\d{4}\s+\d{2}:\d{2}(?::\d{2})?\s*(?:[+-]\d{4}|GMT|UTC|Z)?$/;
+
+  /** A pasted date (ISO 8601 or an email-style date) converted to Unix time. */
+  function dateInfo(value, now = Date.now()) {
+    if (!ISO_DATE.test(value) && !MAIL_DATE.test(value)) return null;
+    const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+    const hasZone = dateOnly || /(?:Z|[+-]\d{2}:?\d{2}|GMT|UTC)$/.test(value);
+    const ms = Date.parse(/^\d{4}-\d{2}-\d{2} /.test(value) ? value.replace(" ", "T") : value);
+    if (Number.isNaN(ms)) return null;
+    return {
+      "Unix seconds": String(Math.floor(ms / 1000)),
+      "Unix milliseconds": String(ms),
+      UTC: new Date(ms).toISOString(),
+      Local: new Date(ms).toLocaleString(),
+      Relative: relativeTime(ms, now),
+      "Time zone": dateOnly ? "Date only: midnight UTC" : hasZone ? "Given in the input" : "None given: read as your local time",
+    };
   }
 
   function decodeJwt(value) {
@@ -253,7 +286,7 @@
     }
 
     const nonEmptyLines = lines.filter((line) => line.trim());
-    if (nonEmptyLines.length && nonEmptyLines.every((line) => /^[A-Za-z0-9-]+\s*:/.test(line))) {
+    if (nonEmptyLines.length && nonEmptyLines.every((line) => /^[A-Za-z][A-Za-z0-9-]*\s*:/.test(line))) {
       const layers = [];
       const notices = [];
       addHeaderLayers(parseHeaders(nonEmptyLines), layers, notices);
@@ -262,16 +295,82 @@
     return null;
   }
 
-  function analyze(input, now = Date.now()) {
+  function tokenLayers(token, label) {
+    const jwt = decodeJwt(token);
+    if (!jwt) return null;
+    const intelligence = analyzeJwtClaims(jwt);
+    return {
+      layers: [
+        { type: `${label} header`, detail: jwt.header.alg || "JSON", value: jwt.header, claims: true },
+        { type: `${label} claims`, detail: "Payload", value: jwt.payload, claims: true },
+        { type: `${label} intelligence`, detail: intelligence.summary.Status, value: intelligence.summary, claims: true },
+      ],
+      notices: intelligence.notices,
+    };
+  }
+
+  /** OAuth results can carry an ID token (or a JWT access token): decode it and offer verification. */
+  function withTokens(result) {
+    if (!result) return result;
+    for (const [token, label] of [[result.idToken, "ID token"], [result.accessJwt, "Access token"]]) {
+      const decoded = token && tokenLayers(token, label);
+      if (!decoded) continue;
+      result.layers.push(...decoded.layers);
+      result.notices.push(...decoded.notices.filter((n) => !result.notices.includes(n)));
+      if (!result.jwt) result.jwt = token;
+    }
+    return result;
+  }
+
+  function fromJson(value, now) {
+    return Proto.analyzeWebAuthn(value, null, now) || Proto.analyzeJwk(value, now) || withTokens(Proto.analyzeTokenResponse(value));
+  }
+
+  /** Binary payloads after Base64 or hex; strict unless this is the page for that format. */
+  function fromBytes(bytes, now, tool) {
+    return Proto.analyzeWebAuthn(null, bytes, now, tool === "webauthn")
+      || Proto.analyzeDns(bytes, { strict: tool !== "dns" })
+      || Proto.analyzeProtobuf(bytes, { strict: tool !== "protobuf" });
+  }
+
+  /** On a binary-format page, try that format first on hex or Base64 input. */
+  function toolFirst(raw, now, tool) {
+    if (!["protobuf", "dns", "webauthn"].includes(tool)) return null;
+    let bytes = Proto.hexToBytes(raw, { loose: true });
+    let how = bytes ? "Hex" : "Base64";
+    if (!bytes) {
+      let text = raw;
+      if (/%[0-9A-Fa-f]{2}/.test(text)) { try { text = decodeURIComponent(text); how = "URL-encoded Base64"; } catch { /* keep */ } }
+      if (/^[A-Za-z0-9+/_=\s-]+$/.test(text)) { try { bytes = Tools.base64ToBytes(text); } catch { bytes = null; } }
+    }
+    if (!bytes || !bytes.length) return null;
+    const result = tool === "webauthn" ? Proto.analyzeWebAuthn(null, bytes, now, true)
+      : tool === "dns" ? Proto.analyzeDns(bytes, { strict: false }) : Proto.analyzeProtobuf(bytes, { strict: false });
+    if (!result) return null;
+    return { ...result, layers: [{ type: how, detail: `${bytes.length} bytes`, value: `${bytes.length} bytes decoded from ${how.toLowerCase()}` }, ...result.layers] };
+  }
+
+  function analyze(input, now = Date.now(), options = {}) {
     const raw = String(input ?? "").trim();
     if (!raw) return { type: "Empty", confidence: 0, layers: [], notices: [], output: "" };
+    const tool = options.tool || "home";
 
     const notices = [];
     const layers = [];
+    const first = toolFirst(raw, now, tool);
+    if (first) return first;
+
+    if (/-----BEGIN OPENSSH PRIVATE KEY-----/.test(raw)) return Proto.analyzeOpensshPrivate(raw, now);
+    const ssh = Proto.analyzeSshLines(raw, now);
+    if (ssh) return ssh;
+
     if (/-----BEGIN [A-Z0-9 ]+-----/.test(raw)) {
       const pem = Tools.analyzePem(raw, now);
       if (pem) return pem;
     }
+
+    const jwe = Proto.analyzeJwe(raw);
+    if (jwe) return jwe;
 
     const jwt = decodeJwt(raw);
     if (jwt) {
@@ -281,6 +380,7 @@
       layers.push({ type: "JWT intelligence", detail: intelligence.summary.Status, value: intelligence.summary, claims: true });
       layers.push({ type: "Signature", detail: "Not verified", value: jwt.signature });
       notices.push(...intelligence.notices);
+      if (jwt.header.enc) notices.unshift("The header has an enc parameter, which belongs to encrypted tokens (JWE). A compact JWE has five parts; this has three.");
       return { type: "JSON Web Token", confidence: 98, layers, notices, output: prettify(jwt.payload), jwt: raw };
     }
 
@@ -294,6 +394,17 @@
       const saml = Tools.analyzeSamlUrl(raw, now);
       if (saml) return saml;
     }
+
+    if (/^https?:\/\/\S+[?&]dns=/i.test(raw)) {
+      const doh = Proto.dohUrl(raw);
+      if (doh) return { ...doh, layers: [{ type: "DoH request", detail: "GET ?dns=", value: raw.split("?")[0] }, ...doh.layers] };
+    }
+
+    const oauth = withTokens(Proto.analyzeOAuth(raw));
+    if (oauth) return oauth;
+
+    const mailPolicy = Proto.analyzeMailPolicy(raw);
+    if (mailPolicy) return mailPolicy;
 
     const email = Tools.analyzeEmail(raw);
     if (email) return email;
@@ -309,17 +420,37 @@
       if (xml) return xml;
     }
 
+    if (tool === "timestamp") {
+      const stamp = timestampInfo(raw, now);
+      if (stamp) return { type: "Unix timestamp", confidence: 96, layers: [{ type: "Unix timestamp", detail: stamp.unit, value: stamp, claims: true }], notices, output: stamp.iso };
+    }
+
     const id = Tools.analyzeId(raw, now);
     if (id) return id;
 
-    const timestamp = timestampInfo(raw);
+    const hexBytes = Proto.hexToBytes(raw);
+    if (hexBytes) {
+      const binary = fromBytes(hexBytes, now, tool);
+      if (binary) return { ...binary, layers: [{ type: "Hex", detail: `${hexBytes.length} bytes`, value: raw }, ...binary.layers] };
+    }
+
+    const timestamp = timestampInfo(raw, now);
     if (timestamp) {
-      layers.push({ type: "Unix timestamp", detail: raw.length === 10 ? "Seconds" : "Milliseconds", value: timestamp, claims: true });
+      layers.push({ type: "Unix timestamp", detail: timestamp.unit, value: timestamp, claims: true });
       return { type: "Unix timestamp", confidence: 96, layers, notices, output: timestamp.iso };
+    }
+
+    const date = dateInfo(raw, now);
+    if (date) {
+      layers.push({ type: "Date", detail: "As Unix time", value: date, claims: true });
+      if (/local time/.test(date["Time zone"])) notices.push("The date has no time zone, so it was read in your browser's time zone. Add Z or an offset such as +02:00 to be exact.");
+      return { type: "Date and time", confidence: 93, layers, notices, output: date["Unix seconds"] };
     }
 
     const json = parseJson(raw);
     if (json !== null) {
+      const special = fromJson(json, now);
+      if (special) return special;
       layers.push({ type: "JSON", detail: Array.isArray(json) ? "Array" : typeof json, value: json, claims: typeof json === "object" && !Array.isArray(json) });
       return { type: "JSON", confidence: 99, layers, notices, output: prettify(json) };
     }
@@ -347,11 +478,12 @@
       }
 
       if (decoded === null && current.length >= 8 && /^[A-Za-z0-9+/_=-]+$/.test(current.replace(/\s/g, ""))) {
-        try {
-          const candidate = decodeBase64(current);
-          if (candidate !== current && isMostlyReadable(candidate)) { decoded = candidate; type = "Base64"; }
-        } catch {
-          // Binary Base64: a DER certificate, or gzip / zlib / deflate compressed text.
+        let candidate = null;
+        try { candidate = decodeBase64(current); } catch { /* not UTF-8: binary */ }
+        if (candidate !== null && candidate !== current && isMostlyReadable(candidate)) { decoded = candidate; type = "Base64"; }
+        else {
+          // Binary Base64 (or valid but unreadable UTF-8): a DER certificate, compressed text,
+          // or a binary format such as CBOR, DNS or protobuf.
           let bytes = null;
           try { bytes = Tools.base64ToBytes(current); } catch { /* not Base64 at all */ }
           if (bytes) {
@@ -367,6 +499,9 @@
               if (layers.length === 1) firstType = "Compressed data";
               decoded = text;
               type = `${inflated.format} decompressed`;
+            } else {
+              const binary = fromBytes(bytes, now, tool);
+              if (binary) return { ...binary, layers: [...layers, { type: "Base64", detail: `${bytes.length} bytes`, value: `${bytes.length} bytes of binary data` }, ...binary.layers], notices: [...notices, ...binary.notices] };
             }
           }
         }
@@ -379,6 +514,8 @@
 
       const nestedJson = parseJson(current);
       if (nestedJson !== null) {
+        const special = fromJson(nestedJson, now);
+        if (special) return { ...special, layers: [...layers, ...special.layers], notices: [...notices, ...special.notices] };
         layers.push({ type: "JSON", detail: "Decoded payload", value: nestedJson, claims: typeof nestedJson === "object" && !Array.isArray(nestedJson) });
         current = prettify(nestedJson);
         break;
@@ -389,9 +526,9 @@
         if (xml) return { ...xml, layers: [...layers, ...xml.layers], notices: [...notices, ...xml.notices] };
       }
 
-      const nestedTimestamp = timestampInfo(current);
+      const nestedTimestamp = timestampInfo(current, now);
       if (nestedTimestamp) {
-        layers.push({ type: "Unix timestamp", detail: "Decoded value", value: nestedTimestamp, claims: true });
+        layers.push({ type: "Unix timestamp", detail: nestedTimestamp.unit, value: nestedTimestamp, claims: true });
         current = nestedTimestamp.iso;
         break;
       }
@@ -404,5 +541,5 @@
     return { type: "Plain text", confidence: 65, layers, notices, output: raw };
   }
 
-  return { analyze, analyzeHttp, analyzeJwtClaims, decodeBase64, decodeJwt, diagnoseJson, timestampInfo };
+  return { analyze, analyzeHttp, analyzeJwtClaims, dateInfo, decodeBase64, decodeJwt, diagnoseJson, timestampInfo };
 });

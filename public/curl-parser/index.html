@@ -3,27 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="17 private developer tools in one box: JWT, OAuth/PKCE, SAML, passkeys, certificates, SSH keys, security and email headers, DNS/SPF, Base64, JSON, timestamps, UUIDs and protobuf. Decoded in your browser." />
+    <meta name="description" content="Paste a cURL command or raw HTTP request to see the method, URL, query parameters, headers, cookies and JSON body, with Bearer JWTs decoded. Nothing is sent." />
     <meta name="theme-color" content="#f4f1e8" />
     <meta name="application-name" content="decoder.in" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://decoder.in/" />
+    <link rel="canonical" href="https://decoder.in/curl-parser/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="decoder.in" />
-    <meta property="og:title" content="decoder.in — Make encoded data readable" />
-    <meta property="og:description" content="17 private developer tools in one box: JWT, OAuth/PKCE, SAML, passkeys, certificates, SSH keys, security and email headers, DNS/SPF, Base64, JSON, timestamps, UUIDs and protobuf. Decoded in your browser." />
-    <meta property="og:url" content="https://decoder.in/" />
+    <meta property="og:title" content="cURL command and HTTP request parser — decoder.in" />
+    <meta property="og:description" content="Paste a cURL command or raw HTTP request to see the method, URL, query parameters, headers, cookies and JSON body, with Bearer JWTs decoded. Nothing is sent." />
+    <meta property="og:url" content="https://decoder.in/curl-parser/" />
     <meta property="og:image" content="https://decoder.in/og-card.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <title>decoder.in — Make encoded data readable</title>
+    <title>cURL command and HTTP request parser — decoder.in</title>
     <link rel="stylesheet" href="/styles.css?v=20260926-2" />
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"decoder.in","url":"https://decoder.in/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"cURL command and HTTP request parser","url":"https://decoder.in/curl-parser/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Decoder run the command?","acceptedAnswer":{"@type":"Answer","text":"Never. The command is parsed as text and no request is made."}}]}]}</script>
   </head>
-  <body data-tool="home">
+  <body data-tool="http">
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="decoder.in home">
         <span class="wordmark-mark" aria-hidden="true">d/</span>
@@ -38,20 +38,20 @@
         <div class="privacy-pill"><span></span> Local only</div>
       </div>
     </header>
-    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
+    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/" aria-current="page">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
 
     <main>
       <section class="hero">
         <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
-        <h1>Make encoded data<br /><em>readable.</em></h1>
-        <p class="intro">Paste a token, key, certificate, URL, header, record, ID, JSON or encoded string. Decoder identifies it and unwraps every layer in your browser. Or pick a tool above.</p>
+        <h1>Read cURL and<br /><em>HTTP requests.</em></h1>
+        <p class="intro">Paste a cURL command or a raw HTTP request. Decoder splits it into method, URL, query parameters, headers, cookies and body, and decodes any Bearer JWT it carries.</p>
       </section>
 
       <div class="capability-strip" aria-label="Supported inspections">
-        <span>Tokens &amp; identity</span>
-        <span>Certificates &amp; keys</span>
-        <span>Web, mail &amp; network</span>
-        <span>Data &amp; encodings</span>
+        <span>Method &amp; URL</span>
+        <span>Headers &amp; cookies</span>
+        <span>JSON bodies</span>
+        <span>Bearer JWTs</span>
       </div>
 
       <section class="workspace" aria-label="Decoder workspace">
@@ -67,7 +67,7 @@
             id="payload"
             spellcheck="false"
             autocomplete="off"
-            placeholder="Paste a token, certificate, request, headers, JSON, or encoded value…"
+            placeholder="Paste curl '…' -H '…' or GET /path HTTP/1.1…"
           ></textarea>
           <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
         </div>
@@ -109,17 +109,18 @@
         </div>
       </section>
 
+      <p class="tool-hint">Browsers can copy any request as cURL: DevTools → Network → right-click a request → Copy → Copy as cURL. The command is only read here, never executed.</p>
+
       <nav class="tool-links" id="tools" aria-label="Decoder tools">
         <h2>All tools</h2>
-        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
+        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/" aria-current="page">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
       </nav>
 
-      <section class="principles" aria-label="Product principles">
-        <article><span>01</span><h3>Automatic</h3><p>No dropdowns. Decoder recognizes common technical formats and nested layers.</p></article>
-        <article><span>02</span><h3>Private</h3><p>No uploads, accounts, analytics payloads, or server-side processing.</p></article>
-        <article><span>03</span><h3>Explicit</h3><p>Every transformation is shown so you can verify exactly what happened.</p></article>
-      </section>
 
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>What it understands</h2><p>cURL options -X, -H, -d / --data / --data-raw / --data-binary, --url and -I, quoted with single or double quotes and split across lines with \ or ^. Raw HTTP/1.x requests with headers and a body. Pasted response headers go to the <a href="/http-security-headers/">security headers check</a>.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Does Decoder run the command?</h3><p>Never. The command is parsed as text and no request is made.</p></section>
+      </article>
     </main>
 
     <footer>

@@ -3,27 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="17 private developer tools in one box: JWT, OAuth/PKCE, SAML, passkeys, certificates, SSH keys, security and email headers, DNS/SPF, Base64, JSON, timestamps, UUIDs and protobuf. Decoded in your browser." />
+    <meta name="description" content="Decode percent-encoded strings and URLs, split query parameters (including repeated ones), and unwrap double-encoded values, in your browser." />
     <meta name="theme-color" content="#f4f1e8" />
     <meta name="application-name" content="decoder.in" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://decoder.in/" />
+    <link rel="canonical" href="https://decoder.in/url-decoder/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="decoder.in" />
-    <meta property="og:title" content="decoder.in — Make encoded data readable" />
-    <meta property="og:description" content="17 private developer tools in one box: JWT, OAuth/PKCE, SAML, passkeys, certificates, SSH keys, security and email headers, DNS/SPF, Base64, JSON, timestamps, UUIDs and protobuf. Decoded in your browser." />
-    <meta property="og:url" content="https://decoder.in/" />
+    <meta property="og:title" content="URL decoder — percent-encoding, query parameters and double encoding — decoder.in" />
+    <meta property="og:description" content="Decode percent-encoded strings and URLs, split query parameters (including repeated ones), and unwrap double-encoded values, in your browser." />
+    <meta property="og:url" content="https://decoder.in/url-decoder/" />
     <meta property="og:image" content="https://decoder.in/og-card.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <title>decoder.in — Make encoded data readable</title>
+    <title>URL decoder — percent-encoding, query parameters and double encoding — decoder.in</title>
     <link rel="stylesheet" href="/styles.css?v=20260926-2" />
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"decoder.in","url":"https://decoder.in/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"URL decoder — percent-encoding, query parameters and double encoding","url":"https://decoder.in/url-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"CHF"},"creator":{"@type":"Organization","name":"swiss.software","url":"https://swiss.software/"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does + turn into a space?","acceptedAnswer":{"@type":"Answer","text":"In form-encoded query strings + means space. Decoder follows that rule; a literal plus sign is encoded as %2B."}}]}]}</script>
   </head>
-  <body data-tool="home">
+  <body data-tool="url">
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="decoder.in home">
         <span class="wordmark-mark" aria-hidden="true">d/</span>
@@ -38,20 +38,20 @@
         <div class="privacy-pill"><span></span> Local only</div>
       </div>
     </header>
-    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
+    <nav class="tool-bar" aria-label="All tools"><span class="tool-group" aria-label="Tokens &amp; identity"><a href="/jwt-decoder/">JWT</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK</a><a href="/oauth-decoder/">OAuth &amp; PKCE</a><a href="/saml-decoder/">SAML</a><a href="/webauthn-decoder/">Passkeys</a></span><span class="tool-group" aria-label="Certificates &amp; keys"><a href="/certificate-decoder/">Certificates</a><a href="/ssh-key-decoder/">SSH keys</a></span><span class="tool-group" aria-label="Web, mail &amp; network"><a href="/http-security-headers/">Security headers</a><a href="/curl-parser/">cURL &amp; HTTP</a><a href="/email-header-analyzer/">Email headers</a><a href="/dns-decoder/">DNS &amp; SPF</a></span><span class="tool-group" aria-label="Data &amp; encodings"><a href="/base64-decoder/">Base64</a><a href="/url-decoder/" aria-current="page">URL</a><a href="/json-formatter/">JSON</a><a href="/timestamp-converter/">Timestamps</a><a href="/uuid-decoder/">UUID &amp; IDs</a><a href="/protobuf-decoder/">Protobuf</a></span></nav>
 
     <main>
       <section class="hero">
         <p class="eyebrow">A private technical payload inspector by <a href="https://swiss.software/">swiss.software</a></p>
-        <h1>Make encoded data<br /><em>readable.</em></h1>
-        <p class="intro">Paste a token, key, certificate, URL, header, record, ID, JSON or encoded string. Decoder identifies it and unwraps every layer in your browser. Or pick a tool above.</p>
+        <h1>Decode<br /><em>URLs.</em></h1>
+        <p class="intro">Paste a URL or a percent-encoded string. Decoder decodes it, splits the query parameters, and unwraps values that were encoded twice.</p>
       </section>
 
       <div class="capability-strip" aria-label="Supported inspections">
-        <span>Tokens &amp; identity</span>
-        <span>Certificates &amp; keys</span>
-        <span>Web, mail &amp; network</span>
-        <span>Data &amp; encodings</span>
+        <span>Percent-encoding</span>
+        <span>Query parameters</span>
+        <span>Repeated keys</span>
+        <span>Double encoding</span>
       </div>
 
       <section class="workspace" aria-label="Decoder workspace">
@@ -67,7 +67,7 @@
             id="payload"
             spellcheck="false"
             autocomplete="off"
-            placeholder="Paste a token, certificate, request, headers, JSON, or encoded value…"
+            placeholder="Paste a URL or %-encoded text…"
           ></textarea>
           <div class="drop-hint">⌘ / Ctrl + V &nbsp;·&nbsp; Data never leaves this tab</div>
         </div>
@@ -111,15 +111,14 @@
 
       <nav class="tool-links" id="tools" aria-label="Decoder tools">
         <h2>All tools</h2>
-        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
+        <div><section><h3>Tokens &amp; identity</h3><a href="/jwt-decoder/">JWT decoder &amp; verifier</a><a href="/jwe-jwk-decoder/">JWE &amp; JWK inspector</a><a href="/oauth-decoder/">OAuth, OIDC &amp; PKCE checker</a><a href="/saml-decoder/">SAML decoder</a><a href="/webauthn-decoder/">WebAuthn &amp; passkey inspector</a></section><section><h3>Certificates &amp; keys</h3><a href="/certificate-decoder/">Certificate decoder</a><a href="/ssh-key-decoder/">SSH key inspector</a></section><section><h3>Web, mail &amp; network</h3><a href="/http-security-headers/">Security headers check</a><a href="/curl-parser/">cURL &amp; HTTP request parser</a><a href="/email-header-analyzer/">Email header analyzer</a><a href="/dns-decoder/">DNS, DoH, SPF &amp; DMARC decoder</a></section><section><h3>Data &amp; encodings</h3><a href="/base64-decoder/">Base64 decoder</a><a href="/url-decoder/" aria-current="page">URL decoder</a><a href="/json-formatter/">JSON formatter &amp; validator</a><a href="/timestamp-converter/">Unix timestamp converter</a><a href="/uuid-decoder/">UUID &amp; ID decoder</a><a href="/protobuf-decoder/">Protobuf decoder</a></section></div>
       </nav>
 
-      <section class="principles" aria-label="Product principles">
-        <article><span>01</span><h3>Automatic</h3><p>No dropdowns. Decoder recognizes common technical formats and nested layers.</p></article>
-        <article><span>02</span><h3>Private</h3><p>No uploads, accounts, analytics payloads, or server-side processing.</p></article>
-        <article><span>03</span><h3>Explicit</h3><p>Every transformation is shown so you can verify exactly what happened.</p></article>
-      </section>
 
+      <article class="content-page tool-guide">
+        <section class="content-section"><h2>What it shows</h2><p>For a full URL: scheme, host, path, fragment and every query parameter, with repeated keys collected into lists. For encoded text: each decoding step, so double-encoded values such as <code>%2520</code> are visible.</p><p>Special URLs are recognised and passed on: OAuth authorize and callback URLs, SAML redirects and DNS-over-HTTPS queries.</p></section>
+        <section class="content-section"><h2>Questions</h2><h3>Why does + turn into a space?</h3><p>In form-encoded query strings + means space. Decoder follows that rule; a literal plus sign is encoded as %2B.</p></section>
+      </article>
     </main>
 
     <footer>

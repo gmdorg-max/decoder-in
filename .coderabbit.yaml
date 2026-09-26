@@ -1,0 +1,8 @@
+# One review comment per round is enough; replies to every thread flood the inbox.
+chat:
+  auto_reply: false
+reviews:
+  high_level_summary: false
+  poem: false
+  review_status: false
+  collapse_walkthrough: true
